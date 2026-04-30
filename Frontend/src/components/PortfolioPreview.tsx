@@ -55,7 +55,7 @@ export function PortfolioPreview() {
             </div>
 
             <div className="h-64 w-full relative z-10">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <PieChart>
                   <Pie
                     data={data}

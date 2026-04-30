@@ -19,7 +19,7 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-muted-foreground">
             <a href="#" className="hover:text-primary transition-colors">Features</a>
             <a href="#" className="hover:text-primary transition-colors">Tax Tools</a>
-            <a href="#" className="hover:text-primary transition-colors">Portfolio</a>
+            <a href="/portfolio" className="hover:text-primary transition-colors">Portfolio</a>
           </div>
           <div className="flex items-center gap-4">
             <ThemeToggle />
