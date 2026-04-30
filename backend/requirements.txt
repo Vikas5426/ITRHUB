@@ -1,0 +1,31 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+python-dotenv
+python-multipart
+
+# Database
+sqlalchemy
+asyncpg
+alembic
+
+# Auth and security
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt
+fastapi-users[sqlalchemy]
+email-validator
+
+# Cache
+redis
+
+# Tax/data and reporting
+numpy
+python-dateutil
+jinja2
+weasyprint
+pdfplumber
+
+# AI
+anthropic
