@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.endpoints import portfolio
+from app.api.endpoints import portfolio, deadlines
 
 app = FastAPI(title="ITRHUB")
 
@@ -13,6 +13,7 @@ app.add_middleware(
 )
 
 app.include_router(portfolio.router, prefix="/api/portfolio", tags=["portfolio"])
+app.include_router(deadlines.router, prefix="/api/deadlines", tags=["deadlines"])
 
 @app.get("/")
 def root():

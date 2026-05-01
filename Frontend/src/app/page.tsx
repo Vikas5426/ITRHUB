@@ -2,12 +2,15 @@ import { HeroSection } from "@/components/HeroSection";
 import { SmartTaxTools } from "@/components/SmartTaxTools";
 import { PortfolioPreview } from "@/components/PortfolioPreview";
 import { FilingResources } from "@/components/FilingResources";
+import { DeductionFinder } from "@/components/DeductionFinder";
+import { FilingSteps } from "@/components/FilingSteps";
+import { TaxPulse } from "@/components/TaxPulse";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Hexagon } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-hidden font-sans relative selection:bg-primary/10 selection:text-primary">
+    <div className="min-h-screen bg-background text-foreground overflow-x-clip font-sans relative selection:bg-primary/10 selection:text-primary">
       
       {/* Minimal Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-background/80 backdrop-blur-md border-b border-border">
@@ -34,8 +37,11 @@ export default function Home() {
       {/* Main Content */}
       <main className="relative pt-16">
         <HeroSection />
+        <TaxPulse />
         <PortfolioPreview />
         <SmartTaxTools />
+        <DeductionFinder />
+        <FilingSteps />
         <FilingResources />
       </main>
       
