@@ -8,6 +8,7 @@ const inter = Inter({
 });
 
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { AIChatBot } from "@/components/AIChatBot";
 
 export const metadata: Metadata = {
   title: "ITRHUB",
@@ -33,6 +34,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <AIChatBot />
         </ThemeProvider>
       </body>
     </html>

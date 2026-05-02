@@ -41,12 +41,13 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section className="relative pt-32 pb-20 px-6 lg:px-12 flex flex-col items-center text-center">
+    <section className="relative pt-32 pb-20 px-6 lg:px-12 flex flex-col items-center text-center" suppressHydrationWarning>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
         className="max-w-4xl z-10"
+        suppressHydrationWarning
       >
         <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full mb-8 text-black dark:text-white font-semibold text-sm bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/20">
           <Clock size={16} />
