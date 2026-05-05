@@ -1,14 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Calculator, CheckCircle2, ChevronRight } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { ITRTypeGuide } from "./ITRTypeGuide";
 import { TaxRegimeComparison } from "./TaxRegimeComparison";
 
 export function SmartTaxTools() {
-  const [regime, setRegime] = useState<"new" | "old">("new");
-
   return (
     <section className="py-20 px-6 lg:px-12 relative z-10 bg-gray-50 dark:bg-transparent">
       <div className="max-w-6xl mx-auto">

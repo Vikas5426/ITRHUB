@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import type { ComponentType } from "react";
 import { motion, AnimatePresence, useScroll, useSpring, useTransform, PanInfo } from "framer-motion";
 import { 
   FileText, 
@@ -61,7 +62,7 @@ type DocumentStatus = "pending" | "scanning" | "ready";
 type DocumentType = {
   id: string;
   name: string;
-  icon: any;
+  icon: ComponentType<{ size?: number; className?: string }>;
   status: DocumentStatus;
   stepId: string;
   externalLink?: string;
@@ -191,7 +192,6 @@ export function FilingSteps() {
   const [activeStepId, setActiveStepId] = useState<string>(DEFAULT_FILING_STEPS[0].id);
   const [documents, setDocuments] = useState<DocumentType[]>([]);
   const [selectedInfoDoc, setSelectedInfoDoc] = useState<DocumentType | null>(null);
-  const [draggedDocId, setDraggedDocId] = useState<string | null>(null);
 
   // Pre-Flight Checklist State
   const [hasCompletedPreFlight, setHasCompletedPreFlight] = useState(false);
@@ -465,7 +465,7 @@ export function FilingSteps() {
                 </div>
                 
                 <div>
-                  <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">The "Why"</h4>
+                  <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">The &quot;Why&quot;</h4>
                   <p className="text-gray-700 dark:text-gray-300 font-medium leading-relaxed">{selectedInfoDoc.why}</p>
                 </div>
 
@@ -543,9 +543,9 @@ export function FilingSteps() {
               </h2>
               
               <div className="mb-10 bg-blue-50/50 dark:bg-blue-900/10 border-l-4 border-blue-500 p-4 rounded-r-xl">
-                <h3 className="text-blue-800 dark:text-blue-400 font-bold text-lg mb-1">"Step-by-step, stress-free."</h3>
+                <h3 className="text-blue-800 dark:text-blue-400 font-bold text-lg mb-1">&quot;Step-by-step, stress-free.&quot;</h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm font-medium leading-relaxed">
-                  Filing ITR isn't a one-minute job. We save your progress. Upload your docs as you get them, and we'll tell you exactly what's missing for a successful 'No-Defect' return.
+                  Filing ITR isn&apos;t a one-minute job. We save your progress. Upload your docs as you get them, and we&apos;ll tell you exactly what&apos;s missing for a successful &apos;No-Defect&apos; return.
                 </p>
               </div>
               
@@ -702,7 +702,7 @@ export function FilingSteps() {
                           transition={{ duration: 0.2 }}
                           className="text-base font-medium text-black dark:text-white leading-relaxed"
                         >
-                          "{activeStepData.botTip}"
+                          &quot;{activeStepData.botTip}&quot;
                         </motion.p>
                       </AnimatePresence>
                     </div>
@@ -739,7 +739,7 @@ export function FilingSteps() {
                           initial="hidden"
                           animate="show"
                         >
-                          {pendingDocs.map((doc) => (
+                          {pendingDocs.map((doc, index) => (
                             <motion.div
                               variants={listItemVariants}
                               layout
@@ -751,7 +751,7 @@ export function FilingSteps() {
                                 animate={{ y: [0, -5, 0] }}
                                 transition={{ 
                                   repeat: Infinity, 
-                                  duration: 3 + Math.random() * 2,
+                                  duration: 3 + (index % 5) * 0.4,
                                   ease: "easeInOut" 
                                 }}
                               >

@@ -59,11 +59,11 @@ export function HeroSection() {
 
         <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-8 text-black dark:text-white leading-[0.9]">
           YOUR BANK <br />
-          WON'T DO THIS
+          WON&apos;T DO THIS
         </h1>
         
         <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 font-medium max-w-2xl mx-auto mb-12">
-          India's most advanced platform that handles your ITR filing and manages your portfolios (stocks, debt, and real estate) seamlessly in one place.
+          India&apos;s most advanced platform that handles your ITR filing and manages your portfolios (stocks, debt, and real estate) seamlessly in one place.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

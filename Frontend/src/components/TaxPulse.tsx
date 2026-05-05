@@ -74,11 +74,17 @@ export function TaxPulse() {
   const [daysLeft, setDaysLeft] = useState<number>(0);
 
   useEffect(() => {
-    const targetDate = new Date(SUN_DEADLINE.date).getTime();
-    const now = new Date().getTime();
-    const difference = targetDate - now;
-    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-    setDaysLeft(days > 0 ? days : 0);
+    const updateDaysLeft = () => {
+      const targetDate = new Date(SUN_DEADLINE.date).getTime();
+      const now = new Date().getTime();
+      const difference = targetDate - now;
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      setDaysLeft(days > 0 ? days : 0);
+    };
+
+    updateDaysLeft();
+    const timer = window.setInterval(updateDaysLeft, 60 * 60 * 1000);
+    return () => window.clearInterval(timer);
   }, []);
 
   const generateICS = () => {

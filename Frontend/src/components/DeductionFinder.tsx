@@ -204,7 +204,7 @@ export function DeductionFinder() {
         
         {filteredDeductions.length === 0 && (
           <div className="py-12 text-center text-gray-500 font-medium">
-            No deductions found matching "{searchTerm}". Try a different term.
+            No deductions found matching &quot;{searchTerm}&quot;. Try a different term.
           </div>
         )}
       </div>

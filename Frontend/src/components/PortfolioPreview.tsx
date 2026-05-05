@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 const lightData = [
   { name: "Equity", value: 65, color: "#000000" },
@@ -20,13 +20,8 @@ const darkData = [
 
 export function PortfolioPreview() {
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const data = mounted && resolvedTheme === "dark" ? darkData : lightData;
+  const data = useMemo(() => (resolvedTheme === "dark" ? darkData : lightData), [resolvedTheme]);
+  const isDark = resolvedTheme === "dark";
 
   return (
     <section className="py-20 px-6 lg:px-12 relative z-10">
@@ -73,12 +68,12 @@ export function PortfolioPreview() {
                   </Pie>
                   <Tooltip 
                     contentStyle={{ 
-                      backgroundColor: mounted && resolvedTheme === 'dark' ? '#0F172A' : '#FFFFFF', 
-                      borderColor: mounted && resolvedTheme === 'dark' ? 'rgba(255,255,255,0.1)' : '#E5E7EB', 
+                      backgroundColor: isDark ? '#0F172A' : '#FFFFFF', 
+                      borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#E5E7EB', 
                       borderRadius: '12px', 
                       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' 
                     }}
-                    itemStyle={{ color: mounted && resolvedTheme === 'dark' ? '#F8FAFC' : '#000000', fontWeight: 'bold' }}
+                    itemStyle={{ color: isDark ? '#F8FAFC' : '#000000', fontWeight: 'bold' }}
                   />
                 </PieChart>
               </ResponsiveContainer>

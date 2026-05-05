@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { FileText, Download, MessageSquare, ShieldCheck, Zap } from "lucide-react";
 import { AisTisModal } from "./AisTisModal";
 
@@ -21,7 +20,6 @@ export function FilingResources() {
                 Guides, checklists, and secure document management. All in one place.
               </p>
             </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-6 minimal-card hover:border-black/20 dark:hover:bg-white/5 transition-all cursor-pointer group">
                 <FileText className="text-black dark:text-primary mb-4" size={28} />
@@ -40,7 +38,7 @@ export function FilingResources() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h4 className="text-lg font-bold mb-1 text-black dark:text-white">Deduction Finder Checklist</h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">80C, 80D, HRA, NPS & more.</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">80C, 80D, HRA, NPS &amp; more.</p>
                   </div>
                   <button className="p-3 bg-gray-100 dark:bg-white/10 rounded-full hover:bg-gray-200 dark:hover:bg-white/20 transition-colors">
                     <Download size={20} className="text-black dark:text-white" />
@@ -61,13 +59,13 @@ export function FilingResources() {
                 </div>
                 <div>
                   <h4 className="font-bold text-black dark:text-white">ITRHUB Assistant</h4>
-                  <p className="text-xs text-green-600 dark:text-green-400 font-bold">Online & Ready</p>
+                  <p className="text-xs text-green-600 dark:text-green-400 font-bold">Online &amp; Ready</p>
                 </div>
               </div>
 
               <div className="flex-1 space-y-4 mb-6 relative z-10">
                 <div className="bg-gray-100 dark:bg-white/5 p-4 rounded-2xl rounded-tl-sm text-sm font-medium text-black dark:text-white inline-block">
-                  Hi! I'm your tax assistant. How can I help you today?
+                  Hi! I&apos;m your tax assistant. How can I help you today?
                 </div>
                 <div className="bg-black dark:bg-primary/20 p-4 rounded-2xl rounded-tr-sm text-sm font-medium text-white block ml-auto w-fit shadow-md dark:border dark:border-primary/30">
                   Can I claim HRA and Home Loan both?
