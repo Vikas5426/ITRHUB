@@ -1,9 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { FileText, Download, MessageSquare, ShieldCheck, Zap } from "lucide-react";
+import { AisTisModal } from "./AisTisModal";
 
 export function FilingResources() {
+  const [isAisModalOpen, setIsAisModalOpen] = useState(false);
+
   return (
     <section className="py-20 px-6 lg:px-12 relative z-10">
       <div className="max-w-6xl mx-auto">
@@ -24,7 +28,10 @@ export function FilingResources() {
                 <h4 className="text-lg font-bold mb-2 text-black dark:text-white group-hover:text-black dark:group-hover:text-primary transition-colors">Form 16 Guide</h4>
                 <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">How to read your Form 16 and cross-check with 26AS.</p>
               </div>
-              <div className="p-6 minimal-card hover:border-black/20 dark:hover:bg-white/5 transition-all cursor-pointer group">
+              <div 
+                onClick={() => setIsAisModalOpen(true)}
+                className="p-6 minimal-card hover:border-black/20 dark:hover:bg-white/5 transition-all cursor-pointer group"
+              >
                 <ShieldCheck className="text-black dark:text-primary mb-4" size={28} />
                 <h4 className="text-lg font-bold mb-2 text-black dark:text-white group-hover:text-black dark:group-hover:text-primary transition-colors">AIS Verification</h4>
                 <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Ensure your Annual Information Statement matches your records.</p>
@@ -85,6 +92,11 @@ export function FilingResources() {
 
         </div>
       </div>
+
+      <AisTisModal 
+        isOpen={isAisModalOpen} 
+        onClose={() => setIsAisModalOpen(false)} 
+      />
     </section>
   );
 }

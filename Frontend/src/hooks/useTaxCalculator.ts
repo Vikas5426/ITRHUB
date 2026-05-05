@@ -2,10 +2,9 @@ import { useMemo } from 'react';
 
 export function useTaxCalculator(grossIncome: number, deductions: number) {
   return useMemo(() => {
-    // Old Regime logic
     const calculateOldRegime = (income: number, ded: number) => {
       let taxable = Math.max(0, income - ded);
-      if (taxable <= 500000) return 0; // 87A rebate
+      if (taxable <= 500000) return 0;
 
       let tax = 0;
       if (taxable > 1000000) {
@@ -19,34 +18,36 @@ export function useTaxCalculator(grossIncome: number, deductions: number) {
       if (taxable > 250000) {
         tax += (taxable - 250000) * 0.05;
       }
-      return Math.round(tax * 1.04); // including 4% cess
+      return Math.round(tax * 1.04);
     };
 
-    // New Regime logic
     const calculateNewRegime = (income: number) => {
-      // Default 50k standard deduction for new regime
-      let taxable = Math.max(0, income - 50000);
-      if (taxable <= 700000) return 0; // 87A rebate
+      let taxable = Math.max(0, income - 75000);
+      if (taxable <= 1200000) return 0;
 
       let tax = 0;
-      if (taxable > 1500000) {
-        tax += (taxable - 1500000) * 0.3;
-        taxable = 1500000;
+      if (taxable > 2400000) {
+        tax += (taxable - 2400000) * 0.3;
+        taxable = 2400000;
+      }
+      if (taxable > 2000000) {
+        tax += (taxable - 2000000) * 0.25;
+        taxable = 2000000;
+      }
+      if (taxable > 1600000) {
+        tax += (taxable - 1600000) * 0.2;
+        taxable = 1600000;
       }
       if (taxable > 1200000) {
-        tax += (taxable - 1200000) * 0.2;
+        tax += (taxable - 1200000) * 0.15;
         taxable = 1200000;
       }
-      if (taxable > 900000) {
-        tax += (taxable - 900000) * 0.15;
-        taxable = 900000;
+      if (taxable > 800000) {
+        tax += (taxable - 800000) * 0.1;
+        taxable = 800000;
       }
-      if (taxable > 600000) {
-        tax += (taxable - 600000) * 0.1;
-        taxable = 600000;
-      }
-      if (taxable > 300000) {
-        tax += (taxable - 300000) * 0.05;
+      if (taxable > 400000) {
+        tax += (taxable - 400000) * 0.05;
       }
       return Math.round(tax * 1.04);
     };
