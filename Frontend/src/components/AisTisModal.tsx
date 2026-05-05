@@ -55,10 +55,10 @@ export function AisTisModal({ isOpen, onClose }: AisTisModalProps) {
           {/* Section 2 */}
           <div className="mb-6">
             <h3 className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold mb-1">
-              The "Why"
+              The &quot;Why&quot;
             </h3>
             <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-              Ensures no income is forgotten or mismatched with the Income Tax Department's records, preventing future notices.
+              Ensures no income is forgotten or mismatched with the Income Tax Department&apos;s records, preventing future notices.
             </p>
           </div>
 

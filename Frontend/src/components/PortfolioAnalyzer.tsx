@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { UploadCloud, FileSpreadsheet, Info, X, TrendingUp, ShieldAlert } from "lucide-react";
+import { UploadCloud, FileSpreadsheet, X, ShieldAlert } from "lucide-react";
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend, ReferenceLine } from 'recharts';
 
 type TradeData = {
@@ -22,15 +22,38 @@ type TradeData = {
   };
 };
 
+type CustomTooltipProps = {
+  active?: boolean;
+  payload?: Array<{ payload: TradeData }>;
+};
+
+function CustomTooltip({ active, payload }: CustomTooltipProps) {
+  if (active && payload && payload.length) {
+    const p = payload[0].payload;
+    return (
+      <div className="bg-black/90 backdrop-blur-md text-white p-4 rounded-xl border border-white/20 shadow-xl max-w-[250px]">
+        <p className="font-bold text-lg mb-1">{p.name}</p>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">{p.type}</span>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${p.cat === 'LTCG' ? 'bg-blue-500/30 text-blue-300' : p.cat === 'STCG' ? 'bg-orange-500/30 text-orange-300' : p.cat === 'Loss' ? 'bg-red-500/30 text-red-300' : 'bg-purple-500/30 text-purple-300'}`}>{p.cat}</span>
+        </div>
+        <p className="text-sm text-gray-300">Gain: <span className="text-green-400 font-bold">₹{p.gain.toLocaleString('en-IN')}</span></p>
+        <p className="text-sm text-gray-300 mb-2">Tax: <span className="text-red-400 font-bold">₹{p.tax.toLocaleString('en-IN')}</span></p>
+        <p className="text-xs text-gray-500 mt-2 border-t border-white/10 pt-2">Click bubble for details</p>
+      </div>
+    );
+  }
+
+  return null;
+}
+
 export function PortfolioAnalyzer() {
-  const [file, setFile] = useState<File | null>(null);
   const [data, setData] = useState<TradeData[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedTrade, setSelectedTrade] = useState<TradeData | null>(null);
   const [dragActive, setDragActive] = useState(false);
 
   const handleUpload = async (f: File) => {
-    setFile(f);
     setLoading(true);
     const formData = new FormData();
     formData.append("file", f);
@@ -88,25 +111,6 @@ export function PortfolioAnalyzer() {
     if (e.target.files && e.target.files[0]) {
       handleUpload(e.target.files[0]);
     }
-  };
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const p = payload[0].payload as TradeData;
-      return (
-        <div className="bg-black/90 backdrop-blur-md text-white p-4 rounded-xl border border-white/20 shadow-xl max-w-[250px]">
-          <p className="font-bold text-lg mb-1">{p.name}</p>
-          <div className="flex items-center gap-2 mb-3">
-             <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">{p.type}</span>
-             <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${p.cat === 'LTCG' ? 'bg-blue-500/30 text-blue-300' : p.cat === 'STCG' ? 'bg-orange-500/30 text-orange-300' : p.cat === 'Loss' ? 'bg-red-500/30 text-red-300' : 'bg-purple-500/30 text-purple-300'}`}>{p.cat}</span>
-          </div>
-          <p className="text-sm text-gray-300">Gain: <span className="text-green-400 font-bold">₹{p.gain.toLocaleString('en-IN')}</span></p>
-          <p className="text-sm text-gray-300 mb-2">Tax: <span className="text-red-400 font-bold">₹{p.tax.toLocaleString('en-IN')}</span></p>
-          <p className="text-xs text-gray-500 mt-2 border-t border-white/10 pt-2">Click bubble for details</p>
-        </div>
-      );
-    }
-    return null;
   };
 
   return (

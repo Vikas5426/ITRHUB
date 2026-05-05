@@ -69,7 +69,7 @@ export function ITRTypeGuide() {
               opacity: 0, 
               y: direction > 0 ? -100 : 100, // anti-gravity fly off upwards
               scale: 1.05, 
-              rotateZ: direction > 0 ? (Math.random() > 0.5 ? 5 : -5) : 0 
+              rotateZ: direction > 0 ? 5 : 0 
             }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
             className="absolute w-full max-w-sm z-10"

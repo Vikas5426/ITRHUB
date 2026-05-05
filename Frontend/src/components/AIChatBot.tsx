@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, X, Send, Bot, User, Loader2, Info } from "lucide-react";
+import { MessageSquare, X, Send, Bot, Loader2, Info } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 interface Message {
@@ -23,13 +23,13 @@ export function AIChatBot() {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-  
+
   useEffect(() => {
     if (isOpen) {
       scrollToBottom();
@@ -62,14 +62,14 @@ export function AIChatBot() {
       }
 
       const data = await response.json();
-      
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "ai",
         content: data.answer,
         sources: data.sources,
       };
-      
+
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
       console.error("Chat error:", error);
@@ -141,18 +141,17 @@ export function AIChatBot() {
                   className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} gap-2`}
                 >
                   {msg.role === "ai" && (
-                    <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-white/10 flex-shrink-0 flex items-center justify-center mt-1">
+                    <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-white/10 shrink-0 flex items-center justify-center mt-1">
                       <Bot size={12} className="text-gray-600 dark:text-gray-300" />
                     </div>
                   )}
-                  
+
                   <div className="flex flex-col max-w-[80%]">
                     <div
-                      className={`px-4 py-2.5 rounded-2xl text-sm ${
-                        msg.role === "user"
+                      className={`px-4 py-2.5 rounded-2xl text-sm ${msg.role === "user"
                           ? "bg-black dark:bg-white text-white dark:text-black rounded-tr-none"
                           : "bg-gray-100 dark:bg-white/10 text-gray-800 dark:text-gray-200 rounded-tl-none prose prose-sm dark:prose-invert"
-                      }`}
+                        }`}
                     >
                       {msg.role === "user" ? (
                         msg.content
@@ -160,7 +159,7 @@ export function AIChatBot() {
                         <ReactMarkdown>{msg.content}</ReactMarkdown>
                       )}
                     </div>
-                    
+
                     {/* Source Snippets rendering */}
                     {msg.role === "ai" && msg.sources && msg.sources.length > 0 && (
                       <div className="mt-2 space-y-1">
@@ -181,10 +180,10 @@ export function AIChatBot() {
                   </div>
                 </div>
               ))}
-              
+
               {isLoading && (
                 <div className="flex justify-start gap-2">
-                  <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-white/10 flex-shrink-0 flex items-center justify-center mt-1">
+                  <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-white/10 shrink-0 flex items-center justify-center mt-1">
                     <Bot size={12} className="text-gray-600 dark:text-gray-300" />
                   </div>
                   <div className="bg-gray-100 dark:bg-white/10 text-gray-800 dark:text-gray-200 px-4 py-3 rounded-2xl rounded-tl-none flex items-center gap-1.5">
