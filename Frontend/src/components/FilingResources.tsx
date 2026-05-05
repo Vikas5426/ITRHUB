@@ -60,7 +60,7 @@ export function FilingResources() {
                   <Zap size={20} className="text-black dark:text-primary" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-black dark:text-white">Claude AI Assistant</h4>
+                  <h4 className="font-bold text-black dark:text-white">ITRHUB Assistant</h4>
                   <p className="text-xs text-green-600 dark:text-green-400 font-bold">Online & Ready</p>
                 </div>
               </div>
