@@ -60,7 +60,7 @@ export function PortfolioAnalyzer() {
 
     try {
       // In a real env, this points to your deployed FastAPI backend
-      const res = await fetch("http://localhost:8000/api/portfolio/analyze", {
+      const res = await fetch("/api/portfolio/analyze", {
         method: "POST",
         body: formData,
       });
