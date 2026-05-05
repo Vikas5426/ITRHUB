@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 const lightData = [
   { name: "Equity", value: 65, color: "#000000" },
@@ -20,8 +20,18 @@ const darkData = [
 
 export function PortfolioPreview() {
   const { resolvedTheme } = useTheme();
-  const data = useMemo(() => (resolvedTheme === "dark" ? darkData : lightData), [resolvedTheme]);
-  const isDark = resolvedTheme === "dark";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
+  const data = useMemo(
+    () => (mounted && resolvedTheme === "dark" ? darkData : lightData),
+    [mounted, resolvedTheme]
+  );
+  const isDark = mounted && resolvedTheme === "dark";
 
   return (
     <section className="py-20 px-6 lg:px-12 relative z-10">
