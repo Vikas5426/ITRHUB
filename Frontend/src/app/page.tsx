@@ -22,11 +22,6 @@ export default function Home() {
         <FilingSteps />
         <FilingResources />
       </main>
-      
-      {/* Footer */}
-      <footer className="border-t border-border py-8 px-6 mt-20 relative z-10 text-center text-muted-foreground text-sm">
-        <p>© 2026 ITRHUB. All rights reserved.</p>
-      </footer>
     </div>
   );
 }

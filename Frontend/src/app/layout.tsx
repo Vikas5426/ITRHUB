@@ -9,6 +9,7 @@ const inter = Inter({
 
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AIChatBot } from "@/components/AIChatBot";
+import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "ITRHUB",
@@ -33,7 +34,12 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          {children}
+          <div className="flex flex-col min-h-screen">
+            <main className="flex-1 flex flex-col">
+              {children}
+            </main>
+            <Footer />
+          </div>
           <AIChatBot />
         </ThemeProvider>
       </body>
