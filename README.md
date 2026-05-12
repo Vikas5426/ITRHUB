@@ -208,6 +208,8 @@ npm run dev
 > API docs available at: `http://localhost:8000/docs`  
 > Frontend available at: `http://localhost:3000`
 
+Note: The Portfolio Analyzer API was updated on 2026-05-13 to accept JSON `csv_text` in addition to file uploads, and to require `income` or `user_id` for returning a `tax_summary`. See [backend/PORTFOLIO_API_CHANGE.md](backend/PORTFOLIO_API_CHANGE.md) for details.
+
 ---
 
 ## 📁 Project Structure

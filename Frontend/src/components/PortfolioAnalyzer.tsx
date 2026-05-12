@@ -55,14 +55,13 @@ export function PortfolioAnalyzer() {
 
   const handleUpload = async (f: File) => {
     setLoading(true);
-    const formData = new FormData();
-    formData.append("file", f);
-
     try {
-      // In a real env, this points to your deployed FastAPI backend
+      const text = await f.text();
+      // send as JSON with csv_text for easier integration
       const res = await fetch("/api/portfolio/analyze", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ csv_text: text }),
       });
       const result = await res.json();
       if (result.error) {

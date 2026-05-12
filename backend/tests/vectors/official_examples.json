@@ -1,0 +1,29 @@
+[
+  {
+    "name": "salary_plus_ltcg_old",
+    "description": "Salary + LTCG with equity exemption",
+    "income": 1000000,
+    "deductions": 50000,
+    "regime": "old",
+    "csv": "Asset Name,Asset Type,Buy Date,Sell Date,Buy Price,Sell Price,Quantity\nTest Equity,Listed Equity,2020-01-01,2024-01-02,100,300,1000\n",
+    "expected_tax_after_cess": 116350
+  },
+  {
+    "name": "new_regime_rebate_zero",
+    "description": "New regime with income under rebate threshold",
+    "income": 600000,
+    "deductions": 25000,
+    "regime": "new",
+    "csv": "",
+    "expected_tax_after_cess": 0
+  },
+  {
+    "name": "high_income_surcharge",
+    "description": "High income old regime with surcharge",
+    "income": 6000000,
+    "deductions": 0,
+    "regime": "old",
+    "csv": "",
+    "expected_tax_after_cess": 1844700
+  }
+]
