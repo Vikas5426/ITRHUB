@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.endpoints import portfolio, deadlines, chat
+from app.api.endpoints import portfolio, deadlines, chat, tax_calculator
 
 app = FastAPI(title="ITRHUB")
 
@@ -15,6 +15,7 @@ app.add_middleware(
 app.include_router(portfolio.router, prefix="/api/portfolio", tags=["portfolio"])
 app.include_router(deadlines.router, prefix="/api/deadlines", tags=["deadlines"])
 app.include_router(chat.router, prefix="/api", tags=["chat"])
+app.include_router(tax_calculator.router, prefix="/api/tax", tags=["tax"])
 
 @app.get("/")
 def root():

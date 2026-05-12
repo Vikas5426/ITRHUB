@@ -27,5 +27,8 @@ jinja2
 weasyprint
 pdfplumber
 
+# Testing
+hypothesis
+
 # AI
 anthropic
