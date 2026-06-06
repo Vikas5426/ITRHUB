@@ -10,7 +10,7 @@ import { AppNavbar } from "@/components/AppNavbar";
 export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-clip font-sans relative selection:bg-primary/10 selection:text-primary">
-      <AppNavbar links={[{ href: "/", label: "Home" }, { href: "/portfolio", label: "Portfolio" }]} />
+      <AppNavbar links={[{ href: "/", label: "Home" }, { href: "/tracker", label: "Tracker" }, { href: "/portfolio", label: "Portfolio" }]} />
 
       {/* Main Content */}
       <main className="relative pt-16">
