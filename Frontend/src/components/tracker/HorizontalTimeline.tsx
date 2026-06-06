@@ -16,8 +16,8 @@ export function HorizontalTimeline({ deadlines }: { deadlines: Deadline[] }) {
       case "Overdue": return "bg-red-500 text-white shadow-red-500/20";
       case "Due Soon": return "bg-amber-500 text-white shadow-amber-500/20";
       case "Upcoming": return "bg-emerald-500 text-white shadow-emerald-500/20";
-      case "Done": return "bg-gray-200 text-gray-500 shadow-none";
-      default: return "bg-gray-100 text-gray-600";
+      case "Done": return "bg-gray-200 text-gray-500 shadow-none dark:bg-gray-800 dark:text-gray-400";
+      default: return "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400";
     }
   };
 
@@ -47,14 +47,14 @@ export function HorizontalTimeline({ deadlines }: { deadlines: Deadline[] }) {
       <div className="min-w-[1000px] relative h-72">
         
         {/* The Rail */}
-        <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-100 rounded-full -translate-y-1/2"></div>
+        <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-100 dark:bg-gray-800 rounded-full -translate-y-1/2"></div>
         
         {/* Today Marker */}
         <div 
           className="absolute top-4 bottom-4 w-px bg-primary/40 z-0"
           style={{ left: `${Math.min(Math.max(todayPosition, 0), 100)}%` }}
         >
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Today</div>
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white dark:bg-white dark:text-black text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Today</div>
           <div className="absolute top-0 bottom-0 w-full bg-primary/20 blur-[2px]"></div>
         </div>
 
@@ -73,27 +73,27 @@ export function HorizontalTimeline({ deadlines }: { deadlines: Deadline[] }) {
               style={{ left: `${leftPos}%` }}
             >
               {/* Rail Dot */}
-              <div className={`w-full h-full rounded-full border-2 border-white relative z-20 ${getStatusColor(deadline.status).split(' ')[0]}`}></div>
+              <div className={`w-full h-full rounded-full border-2 border-white dark:border-gray-900 relative z-20 ${getStatusColor(deadline.status).split(' ')[0]}`}></div>
 
               {/* Connector Line */}
-              <div className={`absolute left-1/2 w-px bg-gray-200 -translate-x-1/2 ${isTop ? 'bottom-full h-8' : 'top-full h-8'}`}></div>
+              <div className={`absolute left-1/2 w-px bg-gray-200 dark:bg-gray-700 -translate-x-1/2 ${isTop ? 'bottom-full h-8' : 'top-full h-8'}`}></div>
               
               {/* Card */}
               <div className={`
                 absolute left-1/2 -translate-x-1/2 w-48
-                bg-white border border-gray-200 rounded-xl p-3 shadow-sm
+                bg-white border border-gray-200 rounded-xl p-3 shadow-sm dark:bg-gray-900 dark:border-gray-800
                 transition-all duration-300 group-hover:shadow-md
                 ${isTop ? 'bottom-full mb-8 group-hover:-translate-y-1' : 'top-full mt-8 group-hover:translate-y-1'}
               `}>
                 <div className="flex justify-between items-start mb-1">
-                  <span className="text-xs font-bold text-black">{deadline.displayDate}</span>
+                  <span className="text-xs font-bold text-black dark:text-white">{deadline.displayDate}</span>
                   {deadline.percentage && (
-                    <span className="text-[10px] font-bold bg-gray-100 px-1.5 rounded text-gray-500">
+                    <span className="text-[10px] font-bold bg-gray-100 px-1.5 rounded text-gray-500 dark:bg-gray-800 dark:text-gray-400">
                       {deadline.percentage}
                     </span>
                   )}
                 </div>
-                <div className="text-xs text-gray-600 font-medium leading-tight mb-2 line-clamp-2">
+                <div className="text-xs text-gray-600 dark:text-gray-300 font-medium leading-tight mb-2 line-clamp-2">
                   {deadline.name}
                 </div>
                 <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-block shadow-sm ${getStatusColor(deadline.status)}`}>

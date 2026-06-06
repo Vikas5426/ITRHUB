@@ -19,9 +19,9 @@ export function SmartAlertBanner({ profile, nextDeadline }: { profile: UserProfi
   // Choose tint color based on urgency
   const getTint = (status?: string) => {
     switch (status) {
-      case "Overdue": return "bg-red-50 border-red-200 text-red-900 border-l-red-500";
-      case "Due Soon": return "bg-amber-50 border-amber-200 text-amber-900 border-l-amber-500";
-      default: return "bg-blue-50 border-blue-200 text-blue-900 border-l-blue-500";
+      case "Overdue": return "bg-red-50 border-red-200 text-red-900 border-l-red-500 dark:bg-red-900/20 dark:border-y-red-900/30 dark:border-r-red-900/30 dark:text-red-400 dark:border-l-red-500";
+      case "Due Soon": return "bg-amber-50 border-amber-200 text-amber-900 border-l-amber-500 dark:bg-amber-900/20 dark:border-y-amber-900/30 dark:border-r-amber-900/30 dark:text-amber-400 dark:border-l-amber-500";
+      default: return "bg-blue-50 border-blue-200 text-blue-900 border-l-blue-500 dark:bg-blue-900/20 dark:border-y-blue-900/30 dark:border-r-blue-900/30 dark:text-blue-400 dark:border-l-blue-500";
     }
   };
 

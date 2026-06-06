@@ -40,7 +40,7 @@ export function TaxPulseTracker() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F2F2F2] text-black">
+    <div className="min-h-screen bg-[#F2F2F2] dark:bg-black text-black dark:text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
         <TrackerHeader profile={profile} setProfile={setProfile} />
         
@@ -51,7 +51,7 @@ export function TaxPulseTracker() {
           <HeroCountdown deadline={nextUrgentDeadline} allDeadlines={activeDeadlines} />
         )}
 
-        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-200">
+        <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 md:p-8 shadow-sm border border-gray-200 dark:border-gray-800">
           <h3 className="text-xl font-bold mb-6">FY 2025–26 Timeline</h3>
           <HorizontalTimeline deadlines={sortedDeadlines} />
         </div>
