@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { Search, ChevronRight, Info } from "lucide-react";
 
 interface Deduction {
@@ -71,18 +71,39 @@ const DEDUCTIONS: Deduction[] = [
   },
 ];
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.1 },
+    transition: {
+      staggerChildren: 0.1,
+    },
   },
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, scale: 0.8, y: 20 },
-  show: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
-  exit: { opacity: 0, scale: 0.8, transition: { duration: 0.2 } },
+const itemVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    scale: 0.8,
+    y: 20,
+  },
+  show: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 24,
+    },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.8,
+    transition: {
+      duration: 0.2,
+    },
+  },
 };
 
 function DeductionCard({ deduction }: { deduction: Deduction }) {
