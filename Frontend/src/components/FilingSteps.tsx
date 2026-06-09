@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import type { ComponentType } from "react";
-import { motion, AnimatePresence, useScroll, useSpring, useTransform, PanInfo } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useSpring, useTransform, type PanInfo, type Variants } from "framer-motion";
 import { 
   FileText, 
   FileSpreadsheet, 
@@ -160,7 +160,7 @@ const QUESTIONS = [
 ];
 
 // Variants for questionnaire transitions
-const questionVariants = {
+const questionVariants: Variants = {
   enter: (direction: number) => ({
     y: direction > 0 ? 50 : -50,
     opacity: 0
@@ -177,12 +177,12 @@ const questionVariants = {
   })
 };
 
-const listContainerVariants = {
+const listContainerVariants: Variants = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.15 } }
 };
 
-const listItemVariants = {
+const listItemVariants: Variants = {
   hidden: { opacity: 0, scale: 0.8, y: 20 },
   show: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
 };

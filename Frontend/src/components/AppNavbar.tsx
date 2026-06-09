@@ -21,7 +21,7 @@ export function AppNavbar({ links }: AppNavbarProps) {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-background/80 backdrop-blur-md border-b border-border">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 relative">
         <div className="flex items-center gap-3 shrink-0">
           {showBackButton && (
             <Link
@@ -40,7 +40,7 @@ export function AppNavbar({ links }: AppNavbarProps) {
           </Link>
         </div>
 
-        <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-muted-foreground">
+        <div className="hidden md:flex items-center justify-center gap-8 text-sm font-semibold text-muted-foreground absolute left-1/2 -translate-x-1/2">
           {links.map((link) => {
             const isActive = pathname === link.href;
 

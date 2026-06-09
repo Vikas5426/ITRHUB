@@ -12,7 +12,7 @@ export function PenaltyCalculator() {
   const calculatePenalty = () => {
     if (!income || isNaN(Number(income))) return 0;
     const inc = Number(income);
-    let lateFee = inc > 500000 ? 5000 : 1000;
+    const lateFee = inc > 500000 ? 5000 : 1000;
     
     // roughly mock tax liability at 10%
     const taxLiability = inc > 300000 ? (inc - 300000) * 0.1 : 0;
@@ -29,7 +29,7 @@ export function PenaltyCalculator() {
         <div className="bg-primary/10 p-2 rounded-xl text-primary">
           <Calculator size={24} />
         </div>
-        <h3 className="text-xl font-bold dark:text-white">What's at stake?</h3>
+        <h3 className="text-xl font-bold dark:text-white">What&apos;s at stake?</h3>
       </div>
 
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">

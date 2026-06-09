@@ -8,7 +8,6 @@ export function TrackerHeader({ profile, setProfile }: { profile: UserProfile, s
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
   useEffect(() => {
-    setCurrentTime(new Date());
     const interval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);

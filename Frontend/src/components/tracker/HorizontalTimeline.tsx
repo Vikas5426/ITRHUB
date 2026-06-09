@@ -1,12 +1,15 @@
 "use client";
 
 import { Deadline } from "./data";
-import { useRef, useEffect, useState } from "react";
+import { useRef } from "react";
 import { motion } from "framer-motion";
 
 export function HorizontalTimeline({ deadlines }: { deadlines: Deadline[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [todayPosition, setTodayPosition] = useState<number>(0);
+  const now = new Date();
+  let currentMonthIndex = now.getMonth() - 3;
+  if (currentMonthIndex < 0) currentMonthIndex += 12;
+  const todayPosition = ((currentMonthIndex * 30 + now.getDate()) / 365) * 100;
 
   // Define full year months
   const months = ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"];
@@ -32,15 +35,6 @@ export function HorizontalTimeline({ deadlines }: { deadlines: Deadline[] }) {
     const day = d.getDate();
     return ((monthIndex * 30 + day) / 365) * 100;
   };
-
-  useEffect(() => {
-    // calculate today's position
-    const now = new Date();
-    let monthIndex = now.getMonth() - 3;
-    if (monthIndex < 0) monthIndex += 12;
-    const day = now.getDate();
-    setTodayPosition(((monthIndex * 30 + day) / 365) * 100);
-  }, []);
 
   return (
     <div className="relative w-full overflow-x-auto pb-4 pt-8 hide-scrollbar" ref={containerRef}>

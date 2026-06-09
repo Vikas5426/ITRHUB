@@ -8,6 +8,7 @@ python-multipart
 # Database
 sqlalchemy
 asyncpg
+aiosqlite
 alembic
 
 # Auth and security
@@ -16,6 +17,7 @@ passlib[bcrypt]
 bcrypt
 fastapi-users[sqlalchemy]
 email-validator
+cryptography
 
 # Cache
 redis
@@ -29,6 +31,12 @@ pdfplumber
 
 # Testing
 hypothesis
+pytest
+httpx
 
 # AI
 anthropic
+langchain-core
+langchain-google-genai
+langchain-community
+chromadb

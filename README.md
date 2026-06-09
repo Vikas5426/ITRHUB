@@ -58,6 +58,16 @@
 - **Document Checklist** — Downloadable PDF checklist
 - **AIS / 26AS Guide** — How to download & verify
 
+### Taxpayer Workspace
+
+- HTTP-only cookie authentication with hashed passwords
+- Separate taxpayer profiles for self, family members, and HUFs
+- Assessment-year filing history with autosaved progress
+- Revision checks that prevent silent overwrites from multiple sessions
+- Private document vault with owner authorization, file validation, and
+  application-level encryption
+- PDF, JSON, CSV, JPG, and PNG uploads up to 10 MB
+
 ---
 
 ## 📊 Portfolio Analyzer
@@ -181,7 +191,8 @@ pip install -r requirements.txt
 
 # Set up environment variables
 cp .env.example .env
-# Edit .env with your DB URL, API keys etc.
+# Set independent SECRET_KEY and DOCUMENT_ENCRYPTION_KEY values.
+# Enable SECURE_COOKIES=true when serving over HTTPS.
 
 # Run migrations
 alembic upgrade head
@@ -209,6 +220,10 @@ npm run dev
 > Frontend available at: `http://localhost:3000`
 
 Note: The Portfolio Analyzer API was updated on 2026-05-13 to accept JSON `csv_text` in addition to file uploads, and to require `income` or `user_id` for returning a `tax_summary`. See [backend/PORTFOLIO_API_CHANGE.md](backend/PORTFOLIO_API_CHANGE.md) for details.
+
+For production, set `AUTO_CREATE_TABLES=false` and deploy schema changes only
+through Alembic. Rotating `DOCUMENT_ENCRYPTION_KEY` requires a document
+re-encryption migration; changing it directly makes existing files unreadable.
 
 ---
 

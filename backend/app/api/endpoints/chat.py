@@ -1,17 +1,10 @@
 import os
 import re
 from pathlib import Path
-from typing import List, Optional
-from fastapi import APIRouter, HTTPException, Depends
+from typing import List
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from dotenv import load_dotenv
-
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
-from langchain_core.output_parsers import StrOutputParser
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
-from langchain_community.vectorstores import Chroma
 
 load_dotenv(Path(__file__).parent.parent.parent.parent / '.env')
 
@@ -55,6 +48,9 @@ def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
 def get_vectorstore():
+    from langchain_community.vectorstores import Chroma
+    from langchain_google_genai import GoogleGenerativeAIEmbeddings
+
     persist_dir = Path(__file__).parent.parent.parent.parent / 'chroma_db'
     if not persist_dir.exists():
         # Return None if vector store is not initialized yet
@@ -65,6 +61,17 @@ def get_vectorstore():
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
+    try:
+        from langchain_core.messages import AIMessage, HumanMessage
+        from langchain_core.output_parsers import StrOutputParser
+        from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+        from langchain_google_genai import ChatGoogleGenerativeAI
+    except ImportError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="AI assistant dependencies are not installed",
+        ) from exc
+
     masked_query = mask_pii(request.query)
     
     vectorstore = get_vectorstore()

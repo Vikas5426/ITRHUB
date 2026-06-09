@@ -2,7 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
-## [Unreleased] - 2026-05-13
+## [Unreleased]
+
+### Added
+- HTTP-only session authentication and owner-authorized workspace APIs.
+- Family and HUF taxpayer profiles with a primary self profile.
+- Assessment-year filing workspaces with revision-safe autosave.
+- Encrypted document upload, download, listing, and deletion.
+- `/auth` and `/workspace` frontend flows.
+- Initial Alembic migration and end-to-end workspace API tests.
+
+### Fixed
+- Existing frontend lint and Framer Motion type errors so production builds pass.
+
+## [0.1.0] - 2026-05-13
 
 ### Added
 - `backend/app/services/tax_engine.py` enhancements:

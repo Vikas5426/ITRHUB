@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function TrackerPage() {
   return (
-    <div className="min-h-screen bg-[#F2F2F2] text-foreground font-sans">
+    <div className="min-h-screen bg-background text-foreground font-sans relative">
       <AppNavbar links={[{ href: "/", label: "Home" }, { href: "/tracker", label: "Tracker" }, { href: "/portfolio", label: "Portfolio" }]} />
       <main className="pt-16">
         <TaxPulseTracker />
