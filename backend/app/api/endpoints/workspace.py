@@ -18,10 +18,13 @@ from app.schemas.workspace import (
 	ProfileResponse,
 	ProfileUpdate,
 	ProgressUpdate,
+	ReconciliationRequest,
+	ReconciliationResponse,
 	WorkspaceCreate,
 	WorkspaceResponse,
 	WorkspaceUpdate,
 )
+from app.services.document_import_service import reconcile_documents
 
 
 router = APIRouter()
@@ -310,3 +313,43 @@ async def delete_document(
 		raise HTTPException(status_code=404, detail="Document not found")
 	await db.delete(document)
 	await db.commit()
+
+
+@router.post(
+	"/filings/{workspace_id}/reconciliation",
+	response_model=ReconciliationResponse,
+)
+async def run_reconciliation(
+	workspace_id: int,
+	payload: ReconciliationRequest,
+	current_user: User = Depends(get_current_user),
+	db: AsyncSession = Depends(get_db),
+):
+	workspace = await owned_workspace(db, workspace_id, current_user.id)
+	query = select(FilingDocument).where(FilingDocument.workspace_id == workspace_id)
+	if payload.document_ids:
+		query = query.where(FilingDocument.id.in_(payload.document_ids))
+	documents = list(await db.scalars(query))
+	report = reconcile_documents(documents)
+	workspace.progress_data = {
+		**(workspace.progress_data or {}),
+		"document_reconciliation": report,
+	}
+	await db.commit()
+	return {"workspace_id": workspace_id, **report}
+
+
+@router.get(
+	"/filings/{workspace_id}/reconciliation",
+	response_model=ReconciliationResponse,
+)
+async def get_reconciliation(
+	workspace_id: int,
+	current_user: User = Depends(get_current_user),
+	db: AsyncSession = Depends(get_db),
+):
+	workspace = await owned_workspace(db, workspace_id, current_user.id)
+	report = (workspace.progress_data or {}).get("document_reconciliation")
+	if not report:
+		raise HTTPException(status_code=404, detail="No reconciliation report found")
+	return {"workspace_id": workspace_id, **report}

@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Added
+- Dedicated `/documents` page for document import, filing guidance, and
+  reconciliation.
+- Document reconciliation endpoint for encrypted workspace files, with
+  JSON/CSV extraction and best-effort PDF support.
+- Reconciled income, deduction, TDS, and capital-gains totals with findings and
+  action items saved to the filing workspace.
 - HTTP-only session authentication and owner-authorized workspace APIs.
 - Family and HUF taxpayer profiles with a primary self profile.
 - Assessment-year filing workspaces with revision-safe autosave.
@@ -13,6 +19,8 @@ All notable changes to this project are documented in this file.
 - Initial Alembic migration and end-to-end workspace API tests.
 
 ### Fixed
+- Home/workspace duplication reduced by moving filing document guidance and
+  upload/reconciliation flows into the dedicated document workbench.
 - Existing frontend lint and Framer Motion type errors so production builds pass.
 
 ## [0.1.0] - 2026-05-13

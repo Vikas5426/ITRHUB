@@ -98,3 +98,17 @@ class DocumentResponse(BaseModel):
 	size_bytes: int
 	sha256: str
 	uploaded_at: datetime
+
+
+class ReconciliationRequest(BaseModel):
+	document_ids: list[int] | None = None
+
+
+class ReconciliationResponse(BaseModel):
+	workspace_id: int
+	generated_at: datetime | str
+	documents_reviewed: list[dict[str, Any]]
+	totals: dict[str, float]
+	items: list[dict[str, Any]]
+	findings: list[dict[str, str]]
+	action_items: list[str]

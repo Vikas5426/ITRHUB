@@ -9,7 +9,7 @@ export const metadata = {
 export default function WorkspacePage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <AppNavbar links={[{ href: "/", label: "Home" }, { href: "/workspace", label: "Workspace" }, { href: "/portfolio", label: "Portfolio" }]} />
+      <AppNavbar links={[{ href: "/", label: "Home" }, { href: "/workspace", label: "Workspace" }, { href: "/documents", label: "Documents" }, { href: "/portfolio", label: "Portfolio" }]} />
       <WorkspaceDashboard />
     </div>
   );

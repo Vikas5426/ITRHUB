@@ -1,19 +1,17 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  ArrowRight,
   Check,
   ChevronRight,
-  Download,
-  FileLock2,
-  FileText,
+  FileSearch,
   Loader2,
   Plus,
   Save,
   ShieldCheck,
-  Trash2,
-  Upload,
   UserRound,
   UsersRound,
 } from "lucide-react";
@@ -44,15 +42,6 @@ type Filing = {
   updated_at: string;
 };
 
-type TaxDocument = {
-  id: number;
-  category: string;
-  original_name: string;
-  content_type: string;
-  size_bytes: number;
-  uploaded_at: string;
-};
-
 const filingSections = [
   { id: "personal_details", label: "Personal details" },
   { id: "income_sources", label: "Income sources" },
@@ -69,18 +58,11 @@ function fyLabel(start: number) {
   return `FY ${start - 1}-${String(start).slice(-2)}`;
 }
 
-function formatBytes(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
-
 export function WorkspaceDashboard() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [filings, setFilings] = useState<Filing[]>([]);
-  const [documents, setDocuments] = useState<TaxDocument[]>([]);
   const [activeProfileId, setActiveProfileId] = useState<number | null>(null);
   const [activeFilingId, setActiveFilingId] = useState<number | null>(null);
   const [showProfileForm, setShowProfileForm] = useState(false);
@@ -134,18 +116,14 @@ export function WorkspaceDashboard() {
 
   useEffect(() => {
     if (!activeFiling) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setDocuments([]);
       return;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDraft({
       completedSections: activeFiling.progress_data.completedSections ?? [],
       notes: activeFiling.progress_data.notes ?? "",
     });
     setDirty(false);
-    apiRequest<TaxDocument[]>(`/api/workspace/filings/${activeFiling.id}/documents`)
-      .then(setDocuments)
-      .catch((caught) => setError(caught instanceof Error ? caught.message : "Unable to load documents"));
   }, [activeFilingId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const saveDraft = useCallback(async () => {
@@ -237,36 +215,6 @@ export function WorkspaceDashboard() {
         : [...current.completedSections, sectionId],
     }));
     setDirty(true);
-  }
-
-  async function uploadDocument(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!activeFiling) return;
-    setBusy(true);
-    setError("");
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    try {
-      const uploaded = await apiRequest<TaxDocument>(
-        `/api/workspace/filings/${activeFiling.id}/documents`,
-        { method: "POST", body: formData },
-      );
-      setDocuments((current) => [uploaded, ...current]);
-      form.reset();
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Unable to upload document");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function deleteDocument(documentId: number) {
-    try {
-      await apiRequest<void>(`/api/workspace/documents/${documentId}`, { method: "DELETE" });
-      setDocuments((current) => current.filter((document) => document.id !== documentId));
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Unable to delete document");
-    }
   }
 
   const progress = useMemo(
@@ -435,45 +383,21 @@ export function WorkspaceDashboard() {
               <div className="minimal-card p-6">
                 <div className="mb-6 flex items-start justify-between">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Document vault</p>
-                    <h3 className="mt-1 text-2xl font-black">Encrypted files</h3>
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Document import</p>
+                    <h3 className="mt-1 text-2xl font-black">Reconcile before filing</h3>
                   </div>
-                  <FileLock2 size={28} />
+                  <FileSearch size={28} />
                 </div>
-
-                <form onSubmit={uploadDocument} className="rounded-2xl border border-dashed border-border bg-muted/30 p-4">
-                  <div className="grid gap-3 sm:grid-cols-[140px_1fr_auto]">
-                    <select name="category" className="rounded-xl border border-input bg-background px-3 py-2 text-sm">
-                      <option value="form_16">Form 16</option>
-                      <option value="ais_tis">AIS / TIS</option>
-                      <option value="form_26as">Form 26AS</option>
-                      <option value="bank_interest">Bank interest</option>
-                      <option value="capital_gains">Capital gains</option>
-                      <option value="other">Other</option>
-                    </select>
-                    <input name="file" required type="file" accept=".pdf,.json,.csv,.jpg,.jpeg,.png" className="min-w-0 rounded-xl border border-input bg-background px-3 py-2 text-xs file:mr-3 file:border-0 file:bg-transparent file:font-bold" />
-                    <button disabled={busy} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground">
-                      <Upload size={15} />
-                      Upload
-                    </button>
-                  </div>
-                  <p className="mt-3 text-xs text-muted-foreground">PDF, JSON, CSV, JPG or PNG. Maximum 10 MB. Files are encrypted before database storage.</p>
-                </form>
-
-                <div className="mt-4 space-y-2">
-                  {documents.map((document) => (
-                    <div key={document.id} className="flex items-center gap-3 rounded-xl border border-border p-3">
-                      <div className="rounded-lg bg-muted p-2"><FileText size={18} /></div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-bold">{document.original_name}</p>
-                        <p className="text-xs capitalize text-muted-foreground">{document.category.replaceAll("_", " ")} · {formatBytes(document.size_bytes)}</p>
-                      </div>
-                      <a href={`/api/workspace/documents/${document.id}/download`} className="rounded-lg p-2 hover:bg-muted" aria-label={`Download ${document.original_name}`}><Download size={16} /></a>
-                      <button onClick={() => void deleteDocument(document.id)} className="rounded-lg p-2 text-destructive hover:bg-destructive/10" aria-label={`Delete ${document.original_name}`}><Trash2 size={16} /></button>
-                    </div>
-                  ))}
-                  {documents.length === 0 && <div className="py-8 text-center text-sm text-muted-foreground">No documents uploaded for this assessment year.</div>}
-                </div>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  Upload Form 16, AIS/TIS, Form 26AS, bank-interest, and capital-gains files on the dedicated document page. This keeps the workspace focused while the document workbench handles extraction and mismatch checks.
+                </p>
+                <Link
+                  href={`/documents${activeFiling ? `?filing=${activeFiling.id}` : ""}`}
+                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition hover:bg-primary/90"
+                >
+                  Open document workbench
+                  <ArrowRight size={16} />
+                </Link>
               </div>
             </div>
           )}

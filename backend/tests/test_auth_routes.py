@@ -127,3 +127,59 @@ def test_workspace_autosave_documents_and_owner_isolation(client: TestClient):
 	client.post("/api/auth/logout")
 	register(client, "other@example.com")
 	assert client.get(f"/api/workspace/documents/{document_id}/download").status_code == 404
+
+
+def test_document_import_reconciliation_totals_and_persistence(client: TestClient):
+	register(client)
+	profile_id = client.get("/api/workspace/profiles").json()[0]["id"]
+	workspace = client.post(
+		"/api/workspace/filings",
+		json={"profile_id": profile_id, "assessment_year_start": 2026},
+	).json()
+
+	ais_json = b"""
+	{
+	  "salary": 1200000,
+	  "interest": 22000,
+	  "taxDeducted": 85000,
+	  "capitalGains": 45000
+	}
+	"""
+	form16_csv = (
+		"Description,Amount\n"
+		"Gross Salary,1200000\n"
+		"TDS,85000\n"
+		"80C,150000\n"
+	).encode("utf-8")
+
+	for name, category, content_type, content in [
+		("ais.json", "ais_tis", "application/json", ais_json),
+		("form16.csv", "form_16", "text/csv", form16_csv),
+	]:
+		response = client.post(
+			f"/api/workspace/filings/{workspace['id']}/documents",
+			data={"category": category},
+			files={"file": (name, content, content_type)},
+		)
+		assert response.status_code == 201
+
+	reconciled = client.post(
+		f"/api/workspace/filings/{workspace['id']}/reconciliation",
+		json={},
+	)
+	assert reconciled.status_code == 200
+	report = reconciled.json()
+	assert report["workspace_id"] == workspace["id"]
+	assert report["totals"]["salary_income"] == 1_200_000
+	assert report["totals"]["interest_income"] == 22_000
+	assert report["totals"]["tds"] == 85_000
+	assert report["totals"]["deduction_80c"] == 150_000
+	assert any("Capital gains" in item["message"] for item in report["findings"])
+
+	persisted = client.get(f"/api/workspace/filings/{workspace['id']}/reconciliation")
+	assert persisted.status_code == 200
+	assert persisted.json()["totals"] == report["totals"]
+
+	client.post("/api/auth/logout")
+	register(client, "reconcile-other@example.com")
+	assert client.get(f"/api/workspace/filings/{workspace['id']}/reconciliation").status_code == 404

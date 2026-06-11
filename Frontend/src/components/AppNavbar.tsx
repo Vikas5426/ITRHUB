@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ArrowLeft, Hexagon } from "lucide-react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useAuth } from "@/components/AuthProvider";
 
 type NavLink = {
   href: string;
@@ -18,6 +19,7 @@ type AppNavbarProps = {
 export function AppNavbar({ links }: AppNavbarProps) {
   const pathname = usePathname();
   const showBackButton = pathname !== "/";
+  const { user, loading, logout } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-background/80 backdrop-blur-md border-b border-border">
@@ -62,10 +64,26 @@ export function AppNavbar({ links }: AppNavbarProps) {
 
         <div className="flex items-center gap-4 shrink-0">
           <ThemeToggle />
-          <button className="text-sm font-semibold hover:text-primary transition-colors">Log in</button>
-          <button className="px-5 py-2 bg-primary text-primary-foreground rounded-full text-sm font-bold shadow-md hover:bg-primary/90 transition-all">
-            Sign up
-          </button>
+          {!loading && user ? (
+            <>
+              <div className="text-sm font-semibold hidden md:block">
+                Hi, {user.full_name.split(' ')[0]}
+              </div>
+              <button 
+                onClick={logout}
+                className="text-sm font-semibold hover:text-primary transition-colors flex items-center gap-2"
+              >
+                Log out
+              </button>
+            </>
+          ) : !loading && !user ? (
+            <>
+              <Link href="/auth?mode=login" className="text-sm font-semibold hover:text-primary transition-colors">Log in</Link>
+              <Link href="/auth?mode=signup" className="px-5 py-2 bg-primary text-primary-foreground rounded-full text-sm font-bold shadow-md hover:bg-primary/90 transition-all">
+                Sign up
+              </Link>
+            </>
+          ) : null}
         </div>
       </div>
     </nav>
