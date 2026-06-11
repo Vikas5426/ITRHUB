@@ -1,10 +1,11 @@
 import { PortfolioAnalyzer } from "@/components/PortfolioAnalyzer";
 import { AppNavbar } from "@/components/AppNavbar";
+import { primaryNavLinks } from "@/lib/navigation";
 
 export default function PortfolioPage() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden font-sans relative">
-      <AppNavbar links={[{ href: "/", label: "Home" }, { href: "/portfolio", label: "Portfolio" }]} />
+      <AppNavbar links={primaryNavLinks} />
       <main className="relative pt-24 px-6 lg:px-12 max-w-7xl mx-auto pb-20">
         <div className="mb-12">
           <h1 className="text-5xl font-black mb-4 leading-tight text-black dark:text-white tracking-tight">Portfolio Analyzer</h1>

@@ -183,3 +183,98 @@ def test_document_import_reconciliation_totals_and_persistence(client: TestClien
 	client.post("/api/auth/logout")
 	register(client, "reconcile-other@example.com")
 	assert client.get(f"/api/workspace/filings/{workspace['id']}/reconciliation").status_code == 404
+
+
+def test_income_sources_wizard_updates_workspace_and_recommends_itr(client: TestClient):
+	register(client)
+	profile_id = client.get("/api/workspace/profiles").json()[0]["id"]
+	workspace = client.post(
+		"/api/workspace/filings",
+		json={"profile_id": profile_id, "assessment_year_start": 2026},
+	).json()
+
+	payload = {
+		"salary": {
+			"enabled": True,
+			"employer_count": 2,
+			"gross_salary": 1_800_000,
+			"standard_deduction": 75_000,
+			"professional_tax": 2_400,
+			"tds": 210_000,
+		},
+		"house_property": {
+			"enabled": True,
+			"property_count": 2,
+			"rental_income": 240_000,
+			"home_loan_interest": 120_000,
+			"municipal_taxes": 10_000,
+		},
+		"business": {
+			"enabled": True,
+			"business_type": "profession",
+			"presumptive_scheme": "44ada",
+			"gross_receipts": 900_000,
+			"expenses": 100_000,
+			"net_profit": 450_000,
+			"requires_audit": False,
+		},
+		"capital_gains": {
+			"enabled": True,
+			"listed_equity_stcg": 50_000,
+			"listed_equity_ltcg": 140_000,
+			"property_gains": 0,
+			"crypto_vda_gains": 25_000,
+			"has_loss_carry_forward": True,
+		},
+		"foreign": {
+			"enabled": True,
+			"foreign_income": 10_000,
+			"foreign_assets": True,
+			"foreign_tax_credit": 1_000,
+		},
+		"other": {
+			"interest_income": 40_000,
+			"dividend_income": 15_000,
+			"agricultural_income": 20_000,
+			"other_income": 5_000,
+			"exempt_income": 10_000,
+		},
+		"taxpayer_notes": "Includes salary, consulting, investments, and foreign assets.",
+	}
+
+	response = client.put(
+		f"/api/workspace/filings/{workspace['id']}/income-sources",
+		json=payload,
+	)
+	assert response.status_code == 200
+	body = response.json()
+	assert body["recommended_itr"] == "ITR-3"
+	assert body["summary"]["salary_income"] == 1_800_000
+	assert body["summary"]["business_income"] == 450_000
+	assert body["summary"]["capital_gains"] == 215_000
+	assert body["summary"]["foreign_income"] == 10_000
+	assert any("Foreign assets" in warning for warning in body["warnings"])
+	assert any("VDA/crypto" in warning for warning in body["warnings"])
+
+	loaded = client.get(f"/api/workspace/filings/{workspace['id']}/income-sources")
+	assert loaded.status_code == 200
+	assert loaded.json()["summary"] == body["summary"]
+
+	workspace_after = client.get("/api/workspace/filings").json()[0]
+	assert workspace_after["itr_form"] == "ITR-3"
+	assert workspace_after["completion_percent"] >= 40
+	assert "income_sources" in workspace_after["progress_data"]["completedSections"]
+
+	progress_response = client.put(
+		f"/api/workspace/filings/{workspace['id']}/progress",
+		json={
+			"expected_revision": workspace_after["revision"],
+			"current_section": "documents",
+			"completion_percent": 60,
+			"progress_data": {"notes": "Documents pending"},
+		},
+	)
+	assert progress_response.status_code == 200
+	progress_data = progress_response.json()["progress_data"]
+	assert progress_data["notes"] == "Documents pending"
+	assert progress_data["income_sources"]["salary"]["gross_salary"] == 1_800_000

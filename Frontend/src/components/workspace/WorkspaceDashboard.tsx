@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Check,
   ChevronRight,
+  CircleDollarSign,
   FileSearch,
   Loader2,
   Plus,
@@ -378,6 +379,26 @@ export function WorkspaceDashboard() {
                     className="mt-2 w-full resize-none rounded-xl border border-input bg-background p-3 font-normal outline-none focus:ring-2 focus:ring-ring/20"
                   />
                 </label>
+              </div>
+
+              <div className="minimal-card p-6">
+                <div className="mb-6 flex items-start justify-between">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Income sources</p>
+                    <h3 className="mt-1 text-2xl font-black">Complete the income mix</h3>
+                  </div>
+                  <CircleDollarSign size={28} />
+                </div>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  Capture salary, house property, business/profession, capital gains, foreign assets, agricultural income, and other income in the dedicated wizard.
+                </p>
+                <Link
+                  href={`/income${activeFiling ? `?filing=${activeFiling.id}` : ""}`}
+                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition hover:bg-primary/90"
+                >
+                  Open income wizard
+                  <ArrowRight size={16} />
+                </Link>
               </div>
 
               <div className="minimal-card p-6">

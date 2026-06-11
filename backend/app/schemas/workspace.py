@@ -112,3 +112,72 @@ class ReconciliationResponse(BaseModel):
 	items: list[dict[str, Any]]
 	findings: list[dict[str, str]]
 	action_items: list[str]
+
+
+class SalaryIncome(BaseModel):
+	enabled: bool = False
+	employer_count: int = Field(default=1, ge=1, le=20)
+	gross_salary: float = Field(default=0, ge=0)
+	standard_deduction: float = Field(default=75_000, ge=0)
+	professional_tax: float = Field(default=0, ge=0)
+	tds: float = Field(default=0, ge=0)
+
+
+class HousePropertyIncome(BaseModel):
+	enabled: bool = False
+	property_count: int = Field(default=1, ge=1, le=20)
+	rental_income: float = Field(default=0, ge=0)
+	home_loan_interest: float = Field(default=0, ge=0)
+	municipal_taxes: float = Field(default=0, ge=0)
+
+
+class BusinessIncome(BaseModel):
+	enabled: bool = False
+	business_type: Literal["none", "freelance", "profession", "business", "trading"] = "none"
+	presumptive_scheme: Literal["none", "44ad", "44ada", "44ae"] = "none"
+	gross_receipts: float = Field(default=0, ge=0)
+	expenses: float = Field(default=0, ge=0)
+	net_profit: float = Field(default=0, ge=0)
+	requires_audit: bool = False
+
+
+class CapitalGainsIncome(BaseModel):
+	enabled: bool = False
+	listed_equity_stcg: float = Field(default=0, ge=0)
+	listed_equity_ltcg: float = Field(default=0, ge=0)
+	property_gains: float = Field(default=0, ge=0)
+	crypto_vda_gains: float = Field(default=0, ge=0)
+	has_loss_carry_forward: bool = False
+
+
+class ForeignIncome(BaseModel):
+	enabled: bool = False
+	foreign_income: float = Field(default=0, ge=0)
+	foreign_assets: bool = False
+	foreign_tax_credit: float = Field(default=0, ge=0)
+
+
+class OtherIncome(BaseModel):
+	interest_income: float = Field(default=0, ge=0)
+	dividend_income: float = Field(default=0, ge=0)
+	agricultural_income: float = Field(default=0, ge=0)
+	other_income: float = Field(default=0, ge=0)
+	exempt_income: float = Field(default=0, ge=0)
+
+
+class IncomeSourcesPayload(BaseModel):
+	salary: SalaryIncome = Field(default_factory=SalaryIncome)
+	house_property: HousePropertyIncome = Field(default_factory=HousePropertyIncome)
+	business: BusinessIncome = Field(default_factory=BusinessIncome)
+	capital_gains: CapitalGainsIncome = Field(default_factory=CapitalGainsIncome)
+	foreign: ForeignIncome = Field(default_factory=ForeignIncome)
+	other: OtherIncome = Field(default_factory=OtherIncome)
+	taxpayer_notes: str = Field(default="", max_length=2000)
+
+
+class IncomeSourcesResponse(BaseModel):
+	workspace_id: int
+	income_sources: IncomeSourcesPayload
+	summary: dict[str, Any]
+	recommended_itr: str
+	warnings: list[str]

@@ -1,5 +1,7 @@
 from app.schemas.workspace import (
 	DocumentResponse,
+	IncomeSourcesPayload,
+	IncomeSourcesResponse,
 	ProfileCreate,
 	ProfileResponse,
 	ProfileUpdate,
@@ -13,6 +15,8 @@ from app.schemas.workspace import (
 
 __all__ = [
 	"DocumentResponse",
+	"IncomeSourcesPayload",
+	"IncomeSourcesResponse",
 	"ProfileCreate",
 	"ProfileResponse",
 	"ProfileUpdate",
