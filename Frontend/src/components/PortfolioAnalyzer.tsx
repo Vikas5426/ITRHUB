@@ -37,8 +37,8 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
           <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">{p.type}</span>
           <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${p.cat === 'LTCG' ? 'bg-blue-500/30 text-blue-300' : p.cat === 'STCG' ? 'bg-orange-500/30 text-orange-300' : p.cat === 'Loss' ? 'bg-red-500/30 text-red-300' : 'bg-purple-500/30 text-purple-300'}`}>{p.cat}</span>
         </div>
-        <p className="text-sm text-gray-300">Gain: <span className="text-green-400 font-bold">₹{p.gain.toLocaleString('en-IN')}</span></p>
-        <p className="text-sm text-gray-300 mb-2">Tax: <span className="text-red-400 font-bold">₹{p.tax.toLocaleString('en-IN')}</span></p>
+        <p className="text-sm text-gray-300">Gain: <span className="text-green-400 font-bold">Rs {p.gain.toLocaleString('en-IN')}</span></p>
+        <p className="text-sm text-gray-300 mb-2">Tax: <span className="text-red-400 font-bold">Rs {p.tax.toLocaleString('en-IN')}</span></p>
         <p className="text-xs text-gray-500 mt-2 border-t border-white/10 pt-2">Click bubble for details</p>
       </div>
     );
@@ -188,7 +188,7 @@ export function PortfolioAnalyzer() {
                     tick={{fill: '#888', fontSize: 12, fontWeight: 600}} 
                     axisLine={false}
                     tickLine={false}
-                    tickFormatter={(val) => val >= 100000 ? `₹${(val/100000).toFixed(1)}L` : `₹${val.toLocaleString('en-IN')}`}
+                    tickFormatter={(val) => val >= 100000 ? `Rs ${(val/100000).toFixed(1)}L` : `Rs ${val.toLocaleString('en-IN')}`}
                     tickMargin={10}
                     width={80}
                     padding={{ top: 40, bottom: 40 }}
@@ -274,11 +274,11 @@ export function PortfolioAnalyzer() {
                     </div>
                     <div className="flex justify-between items-center py-3 border-b border-gray-100 dark:border-white/10">
                       <span className="text-gray-500 dark:text-gray-400 font-medium text-sm">Capital Gain</span>
-                      <span className="font-bold text-green-600 dark:text-green-400">₹{selectedTrade.gain.toLocaleString('en-IN')}</span>
+                      <span className="font-bold text-green-600 dark:text-green-400">Rs {selectedTrade.gain.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="flex justify-between items-center py-3 border-b border-gray-100 dark:border-white/10">
                       <span className="text-gray-500 dark:text-gray-400 font-medium text-sm">Est. Tax Impact</span>
-                      <span className="font-black text-red-600 dark:text-red-400 text-lg">₹{selectedTrade.tax.toLocaleString('en-IN')}</span>
+                      <span className="font-black text-red-600 dark:text-red-400 text-lg">Rs {selectedTrade.tax.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
 
@@ -293,17 +293,17 @@ export function PortfolioAnalyzer() {
                       <div className="space-y-2 text-xs">
                         <div className="flex justify-between items-center">
                           <span className="font-medium text-gray-500 dark:text-gray-400">12.5% (No Indexation)</span>
-                          <span className="font-bold text-black dark:text-white">₹{selectedTrade.comp.opt1.toLocaleString('en-IN')}</span>
+                          <span className="font-bold text-black dark:text-white">Rs {selectedTrade.comp.opt1.toLocaleString('en-IN')}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="font-medium text-gray-500 dark:text-gray-400">20% (With Indexation)</span>
-                          <span className="font-bold text-black dark:text-white">₹{selectedTrade.comp.opt2.toLocaleString('en-IN')}</span>
+                          <span className="font-bold text-black dark:text-white">Rs {selectedTrade.comp.opt2.toLocaleString('en-IN')}</span>
                         </div>
                       </div>
                       
                       <div className="mt-3 pt-3 border-t border-yellow-500/20 flex justify-between items-center">
                         <span className="text-xs font-bold text-yellow-700 dark:text-yellow-500">Optimal Tax Applied</span>
-                        <span className="text-sm font-black text-yellow-700 dark:text-yellow-500">₹{selectedTrade.comp.chosen.toLocaleString('en-IN')}</span>
+                        <span className="text-sm font-black text-yellow-700 dark:text-yellow-500">Rs {selectedTrade.comp.chosen.toLocaleString('en-IN')}</span>
                       </div>
                     </div>
                   )}

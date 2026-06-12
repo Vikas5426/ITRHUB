@@ -331,7 +331,7 @@ export function WorkspaceDashboard() {
                 {profileFilings.map((filing) => (
                   <button key={filing.id} onClick={() => setActiveFilingId(filing.id)} className={`min-w-48 rounded-2xl border p-4 text-left transition ${activeFilingId === filing.id ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-muted"}`}>
                     <p className="font-black">{ayLabel(filing.assessment_year_start)}</p>
-                    <p className={`mt-1 text-xs ${activeFilingId === filing.id ? "opacity-65" : "text-muted-foreground"}`}>{fyLabel(filing.assessment_year_start)} · {filing.itr_form ?? "Form not selected"}</p>
+                    <p className={`mt-1 text-xs ${activeFilingId === filing.id ? "opacity-65" : "text-muted-foreground"}`}>{fyLabel(filing.assessment_year_start)} - {filing.itr_form ?? "Form not selected"}</p>
                     <div className={`mt-4 h-1.5 overflow-hidden rounded-full ${activeFilingId === filing.id ? "bg-white/20 dark:bg-black/20" : "bg-muted"}`}>
                       <div className={`h-full rounded-full ${activeFilingId === filing.id ? "bg-white dark:bg-black" : "bg-primary"}`} style={{ width: `${filing.completion_percent}%` }} />
                     </div>
@@ -344,7 +344,7 @@ export function WorkspaceDashboard() {
           </div>
 
           {activeFiling && (
-            <div className="grid gap-6 xl:grid-cols-2">
+            <div className="grid gap-6 xl:grid-cols-3">
               <div className="minimal-card p-6">
                 <div className="mb-6 flex items-start justify-between">
                   <div>

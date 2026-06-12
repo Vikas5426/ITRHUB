@@ -9,7 +9,7 @@ const SUN_DEADLINE = {
   name: "ITR Filing Deadline",
   date: "2026-07-31",
   displayDate: "July 31",
-  penalty: "Late fee up to ₹5,000 under Sec 234F. No carry-forward of certain losses.",
+  penalty: "Late fee up to Rs 5,000 under Sec 234F. No carry-forward of certain losses.",
 };
 
 const PLANETS = [
@@ -62,7 +62,7 @@ const PLANETS = [
     name: "Tax Audit Report",
     date: "2026-09-30",
     displayDate: "Sept 30",
-    penalty: "0.5% of turnover or ₹1.5L max penalty.",
+    penalty: "0.5% of turnover or Rs 1.5L max penalty.",
     color: "bg-purple-500",
     shadow: "shadow-purple-500/50",
     position: { top: "85%", left: "25%" },
@@ -136,7 +136,7 @@ export function TaxPulse() {
           
           <div className="relative pl-6 border-l-4 border-gray-200 dark:border-gray-800 mb-8">
             <p className="text-lg text-gray-600 dark:text-gray-400 font-medium leading-relaxed">
-              Penalties can reach ₹5,000 overnight. Our tracker keeps you ahead of the curve with smart alerts for ITR, Advance Tax, and Audit deadlines tailored to your profile.
+              Penalties can reach Rs 5,000 overnight. Our tracker keeps you ahead of the curve with smart alerts for ITR, Advance Tax, and Audit deadlines tailored to your profile.
             </p>
           </div>
 

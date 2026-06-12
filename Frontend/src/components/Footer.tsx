@@ -89,7 +89,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-[#e0e0e0] dark:border-zinc-800 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#999] dark:text-gray-500 font-medium">
-          <div>© 2026 ITRHUB. All rights reserved.</div>
+          <div>(c) 2026 ITRHUB. All rights reserved.</div>
           <div>Secure document vault | Your data stays private</div>
           <div>ITR Filing Deadline: July 31, 2026</div>
         </div>

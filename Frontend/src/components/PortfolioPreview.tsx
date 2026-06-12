@@ -60,35 +60,39 @@ export function PortfolioPreview() {
             </div>
 
             <div className="h-64 w-full relative z-10">
-              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-                <PieChart>
-                  <Pie
-                    data={data}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={70}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {data.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: isDark ? '#0F172A' : '#FFFFFF', 
-                      borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#E5E7EB', 
-                      borderRadius: '12px', 
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' 
-                    }}
-                    itemStyle={{ color: isDark ? '#F8FAFC' : '#000000', fontWeight: 'bold' }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+              {mounted ? (
+                <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+                  <PieChart>
+                    <Pie
+                      data={data}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={70}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="value"
+                      stroke="none"
+                    >
+                      {data.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                        borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#E5E7EB',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }}
+                      itemStyle={{ color: isDark ? '#F8FAFC' : '#000000', fontWeight: 'bold' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full w-full rounded-full bg-gray-100 dark:bg-white/5" />
+              )}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-3xl font-black text-black dark:text-white">₹24.5L</span>
+                <span className="text-3xl font-black text-black dark:text-white">Rs 24.5L</span>
                 <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Total Value</span>
               </div>
             </div>
@@ -130,7 +134,7 @@ export function PortfolioPreview() {
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Available to offset gains</p>
               </div>
               <span className="text-red-600 dark:text-red-400 font-mono font-bold text-lg flex items-center gap-1">
-                <TrendingDown size={18} /> ₹45,200
+                <TrendingDown size={18} /> Rs 45,200
               </span>
             </div>
             <div className="minimal-card p-5 flex items-center justify-between border-l-4 border-l-green-500 dark:border-l-green-400">
@@ -139,7 +143,7 @@ export function PortfolioPreview() {
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Via loss harvesting</p>
               </div>
               <span className="text-green-600 dark:text-green-400 font-mono font-bold text-lg flex items-center gap-1">
-                <TrendingUp size={18} /> ₹12,500
+                <TrendingUp size={18} /> Rs 12,500
               </span>
             </div>
           </div>

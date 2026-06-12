@@ -30,7 +30,7 @@ export function TaxRegimeComparison() {
 
       <div className="space-y-4 mb-8">
         <div>
-          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Gross Income (₹)</label>
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Gross Income (Rs)</label>
           <input
             type="number"
             value={incomeStr}
@@ -40,7 +40,7 @@ export function TaxRegimeComparison() {
           />
         </div>
         <div>
-          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Deductions (80C, HRA, etc.) (₹)</label>
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Deductions (80C, HRA, etc.) (Rs)</label>
           <input
             type="number"
             value={deductionsStr}
@@ -69,13 +69,13 @@ export function TaxRegimeComparison() {
               transition={{ type: "spring", stiffness: 500, damping: 20 }}
               className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-500 text-white text-[11px] font-black px-4 py-1.5 rounded-full shadow-lg uppercase tracking-wider whitespace-nowrap z-10"
             >
-              You save ₹{difference.toLocaleString('en-IN')}
+              You save Rs {difference.toLocaleString('en-IN')}
             </motion.div>
           )}
           <h4 className="text-sm font-bold text-gray-500 dark:text-muted-foreground mb-4 text-center uppercase tracking-wide">Old Regime</h4>
           <div className="text-center mt-auto">
              <p className="text-3xl font-black text-black dark:text-white tracking-tight">
-               ₹{oldTax.toLocaleString('en-IN')}
+               Rs {oldTax.toLocaleString('en-IN')}
              </p>
              <p className="text-xs font-bold text-gray-400 mt-1 uppercase">Total Tax</p>
           </div>
@@ -97,13 +97,13 @@ export function TaxRegimeComparison() {
               transition={{ type: "spring", stiffness: 500, damping: 20 }}
               className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-500 text-white text-[11px] font-black px-4 py-1.5 rounded-full shadow-lg uppercase tracking-wider whitespace-nowrap z-10"
             >
-              You save ₹{difference.toLocaleString('en-IN')}
+              You save Rs {difference.toLocaleString('en-IN')}
             </motion.div>
           )}
           <h4 className="text-sm font-bold text-gray-500 dark:text-muted-foreground mb-4 text-center uppercase tracking-wide">New Regime</h4>
           <div className="text-center mt-auto">
              <p className="text-3xl font-black text-black dark:text-white tracking-tight">
-               ₹{newTax.toLocaleString('en-IN')}
+               Rs {newTax.toLocaleString('en-IN')}
              </p>
              <p className="text-xs font-bold text-gray-400 mt-1 uppercase">Total Tax</p>
           </div>
