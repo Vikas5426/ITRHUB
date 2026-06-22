@@ -181,3 +181,21 @@ class IncomeSourcesResponse(BaseModel):
 	summary: dict[str, Any]
 	recommended_itr: str
 	warnings: list[str]
+
+
+class ReturnPreparationResponse(BaseModel):
+	workspace_id: int
+	assessment_year: str
+	itr_form: str
+	recommended_itr: str
+	engine_version: str
+	official_utility_status: str
+	schedules: list[dict[str, Any]]
+	validations: list[dict[str, Any]]
+	tax_summary: dict[str, Any]
+	challan_guidance: dict[str, Any]
+	portal_json: dict[str, Any]
+
+
+class ReturnPreparationRequest(BaseModel):
+	itr_form: Literal["ITR-1", "ITR-2", "ITR-3", "ITR-4", "ITR-5", "ITR-6", "ITR-7"] | None = None

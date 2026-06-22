@@ -247,7 +247,7 @@ function DocumentsWorkbenchInner() {
                   >
                     <p className="font-black">{ayLabel(filing.assessment_year_start)}</p>
                     <p className={`mt-1 text-xs ${activeFilingId === filing.id ? "opacity-70" : "text-muted-foreground"}`}>
-                      {profile?.display_name ?? "Taxpayer"} · {filing.itr_form ?? "Form pending"}
+                      {profile?.display_name ?? "Taxpayer"} - {filing.itr_form ?? "Form pending"}
                     </p>
                   </button>
                 );
@@ -260,7 +260,7 @@ function DocumentsWorkbenchInner() {
               <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Selected return</p>
-                  <h2 className="mt-1 text-2xl font-black">{activeProfile?.display_name} · {activeFiling ? ayLabel(activeFiling.assessment_year_start) : ""}</h2>
+                  <h2 className="mt-1 text-2xl font-black">{activeProfile?.display_name} - {activeFiling ? ayLabel(activeFiling.assessment_year_start) : ""}</h2>
                 </div>
                 <button onClick={() => void runReconciliation()} disabled={busy || documents.length === 0} className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40">
                   {busy ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
@@ -295,7 +295,7 @@ function DocumentsWorkbenchInner() {
                     <div className="rounded-lg bg-muted p-2"><FileText size={18} /></div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-bold">{document.original_name}</p>
-                      <p className="text-xs capitalize text-muted-foreground">{document.category.replaceAll("_", " ")} · {formatBytes(document.size_bytes)}</p>
+                      <p className="text-xs capitalize text-muted-foreground">{document.category.replaceAll("_", " ")} - {formatBytes(document.size_bytes)}</p>
                     </div>
                     <a href={`/api/workspace/documents/${document.id}/download`} className="rounded-lg p-2 hover:bg-muted" aria-label={`Download ${document.original_name}`}><Download size={16} /></a>
                     <button onClick={() => void deleteDocument(document.id)} className="rounded-lg p-2 text-destructive hover:bg-destructive/10" aria-label={`Delete ${document.original_name}`}><Trash2 size={16} /></button>

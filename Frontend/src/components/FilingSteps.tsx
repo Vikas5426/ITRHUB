@@ -47,7 +47,7 @@ const DEFAULT_FILING_STEPS: StepData[] = [
     id: "step-3",
     title: "Claim Deductions",
     description: "Ensure all 80C, 80D, and HRA deductions are accounted for.",
-    botTip: "Did you pay rent? Make sure to keep your landlord's PAN handy if rent exceeds ₹1 Lakh/year.",
+    botTip: "Did you pay rent? Make sure to keep your landlord's PAN handy if rent exceeds Rs 1 Lakh/year.",
   },
   {
     id: "step-4",
@@ -88,7 +88,7 @@ const MASTER_DOCS: DocumentType[] = [
     status: "pending", 
     stepId: "step-3",
     summary: "Rent receipts are documented proof of the rent you paid for your accommodation during the financial year.",
-    why: "Required to claim House Rent Allowance (HRA) exemption. Needs landlord signature, and their PAN if total rent > ₹1,00,000.",
+    why: "Required to claim House Rent Allowance (HRA) exemption. Needs landlord signature, and their PAN if total rent > Rs 1,00,000.",
   },
   { 
     id: "doc-3", 
@@ -192,6 +192,7 @@ export function FilingSteps() {
   const [activeStepId, setActiveStepId] = useState<string>(DEFAULT_FILING_STEPS[0].id);
   const [documents, setDocuments] = useState<DocumentType[]>([]);
   const [selectedInfoDoc, setSelectedInfoDoc] = useState<DocumentType | null>(null);
+  const [notice, setNotice] = useState<{ type: "success" | "info" | "error"; message: string } | null>(null);
 
   // Pre-Flight Checklist State
   const [hasCompletedPreFlight, setHasCompletedPreFlight] = useState(false);
@@ -312,7 +313,7 @@ export function FilingSteps() {
       title: "Claim Deductions",
       description: "Ensure all 80C, 80D, and HRA deductions are accounted for.",
       botTip: currentAnswers.q2 === "Yes" 
-        ? "Did you pay rent? Make sure to keep your landlord's PAN handy if rent exceeds ₹1 Lakh/year."
+        ? "Did you pay rent? Make sure to keep your landlord's PAN handy if rent exceeds Rs 1 Lakh/year."
         : "Don't miss out on 80C investments like ELSS or PPF to maximize your refund.",
     });
 
@@ -403,9 +404,10 @@ export function FilingSteps() {
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      alert("Copied PAN format to clipboard!");
+      setNotice({ type: "success", message: "Example PAN copied to clipboard." });
     } catch (err) {
       console.error("Failed to copy", err);
+      setNotice({ type: "error", message: "Could not copy the PAN example. Please copy it manually." });
     }
   };
 
@@ -501,6 +503,18 @@ export function FilingSteps() {
       </AnimatePresence>
 
       <section className="py-24 px-6 lg:px-12 relative z-10 bg-gray-50/50 dark:bg-black/20">
+        {notice && (
+          <div className={`mx-auto mb-6 max-w-7xl rounded-2xl border p-4 text-sm font-semibold ${
+            notice.type === "success"
+              ? "border-green-600/20 bg-green-600/10 text-green-700 dark:text-green-300"
+              : notice.type === "error"
+                ? "border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-300"
+                : "border-blue-500/20 bg-blue-500/10 text-blue-700 dark:text-blue-300"
+          }`}>
+            {notice.message}
+          </div>
+        )}
+
         
         {/* Progress Indicator */}
         {hasCompletedPreFlight && (
@@ -867,7 +881,7 @@ export function FilingSteps() {
                         className="pt-6"
                       >
                         <button 
-                          onClick={() => alert("Proceeding to file...")}
+                          onClick={() => setNotice({ type: "info", message: "Your document checklist is ready. Continue from the main workspace to finish filing." })}
                           className="w-full py-4 bg-primary text-white rounded-2xl font-black text-lg shadow-lg shadow-primary/30 hover:bg-primary/90 hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
                         >
                           <CheckCircle size={24} />

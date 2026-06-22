@@ -22,11 +22,14 @@ from app.schemas.workspace import (
 	ProgressUpdate,
 	ReconciliationRequest,
 	ReconciliationResponse,
+	ReturnPreparationRequest,
+	ReturnPreparationResponse,
 	WorkspaceCreate,
 	WorkspaceResponse,
 	WorkspaceUpdate,
 )
 from app.services.document_import_service import reconcile_documents
+from app.services.return_preparation_service import prepare_return_pack
 from app.services.tax_engine import select_itr
 
 
@@ -512,3 +515,60 @@ async def get_reconciliation(
 	if not report:
 		raise HTTPException(status_code=404, detail="No reconciliation report found")
 	return {"workspace_id": workspace_id, **report}
+
+
+@router.post(
+	"/filings/{workspace_id}/return-preparation",
+	response_model=ReturnPreparationResponse,
+)
+async def generate_return_preparation(
+	workspace_id: int,
+	payload: ReturnPreparationRequest | None = None,
+	current_user: User = Depends(get_current_user),
+	db: AsyncSession = Depends(get_db),
+):
+	workspace = await owned_workspace(db, workspace_id, current_user.id)
+	target_itr_form = payload.itr_form if payload and payload.itr_form else workspace.itr_form
+	pack = prepare_return_pack(
+		workspace_id=workspace.id,
+		assessment_year_start=workspace.assessment_year_start,
+		itr_form=target_itr_form,
+		progress_data=workspace.progress_data,
+	)
+	progress_data = dict(workspace.progress_data or {})
+	completed_sections = set(progress_data.get("completedSections", []))
+	completed_sections.add("return_preparation")
+	progress_data.update(
+		{
+			"return_preparation": pack,
+			"completedSections": list(completed_sections),
+		}
+	)
+	workspace.progress_data = progress_data
+	workspace.current_section = "review"
+	workspace.completion_percent = max(workspace.completion_percent, 80)
+	workspace.revision += 1
+	if not any(issue["severity"] == "error" for issue in pack["validations"]):
+		workspace.status = "ready_for_review"
+	elif workspace.status == "not_started":
+		workspace.status = "in_progress"
+	await db.commit()
+	return pack
+
+
+@router.get(
+	"/filings/{workspace_id}/return-preparation",
+	response_model=ReturnPreparationResponse,
+)
+async def get_return_preparation(
+	workspace_id: int,
+	current_user: User = Depends(get_current_user),
+	db: AsyncSession = Depends(get_db),
+):
+	workspace = await owned_workspace(db, workspace_id, current_user.id)
+	return prepare_return_pack(
+		workspace_id=workspace.id,
+		assessment_year_start=workspace.assessment_year_start,
+		itr_form=workspace.itr_form,
+		progress_data=workspace.progress_data,
+	)

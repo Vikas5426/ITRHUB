@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BellRing, FileText, FolderOpen } from "lucide-react";
+import { ArrowRight, BellRing, ClipboardCheck, FileText, FolderOpen } from "lucide-react";
 import { TaxRegimeComparison } from "./TaxRegimeComparison";
 
 const nextSteps = [
@@ -23,11 +23,17 @@ const nextSteps = [
     text: "Export ITR, advance tax, and audit dates to your calendar.",
     icon: BellRing,
   },
+  {
+    href: "/prepare",
+    title: "Prepare return",
+    text: "Generate schedules, validations, tax payable, challan guidance, and JSON.",
+    icon: ClipboardCheck,
+  },
 ];
 
 export function SmartTaxTools() {
   return (
-    <section className="py-20 px-6 lg:px-12 relative z-10 bg-gray-50 dark:bg-transparent">
+    <section id="tax-tools" className="py-20 px-6 lg:px-12 relative z-10 bg-gray-50 dark:bg-transparent">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-5xl font-black mb-4 leading-tight text-black dark:text-white">Smart Tax Tools</h2>

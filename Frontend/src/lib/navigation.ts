@@ -3,22 +3,21 @@ export const primaryNavLinks = [
   { href: "/workspace", label: "Workspace" },
   { href: "/income", label: "Income" },
   { href: "/documents", label: "Documents" },
+  { href: "/prepare", label: "Prepare" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/tracker", label: "Tracker" },
 ];
 
 export const footerResourceLinks = [
-  { label: "Home", href: "/" },
-  { label: "Income Wizard", href: "/income" },
-  { label: "Document Workbench", href: "/documents" },
-  { label: "Portfolio Analyzer", href: "/portfolio" },
-  { label: "Deadline Tracker", href: "/tracker" },
+  { label: "Taxpayer Workspace", href: "/workspace" },
+  { label: "Income Source Wizard", href: "/income" },
+  { label: "Document Import", href: "/documents" },
+  { label: "Return Preparation", href: "/prepare" },
 ];
 
 export const footerCompanyLinks = [
-  { label: "Workspace", href: "/workspace" },
-  { label: "Privacy Notes", href: "/documents" },
-  { label: "Data Security", href: "/workspace" },
-  { label: "Tax Resources", href: "/documents" },
-  { label: "Support", href: "/workspace" },
+  { label: "Regime Calculator", href: "/#tax-tools" },
+  { label: "Portfolio Analyzer", href: "/portfolio" },
+  { label: "Deadline Tracker", href: "/tracker" },
+  { label: "Deduction Finder", href: "/#deductions" },
 ];

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Calculator, IndianRupee } from "lucide-react";
+import { Calculator } from "lucide-react";
 
 export function PenaltyCalculator() {
   const [income, setIncome] = useState<string>("");
@@ -42,8 +42,8 @@ export function PenaltyCalculator() {
             Estimated Annual Income
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <IndianRupee size={16} className="text-gray-400" />
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-sm font-black text-gray-400">
+              Rs
             </div>
             <input
               type="number"
@@ -61,7 +61,7 @@ export function PenaltyCalculator() {
           Estimated Exposure
         </div>
         <div className="text-3xl font-black text-red-500 mb-2">
-          ₹{exposure.toLocaleString('en-IN')}
+          Rs {exposure.toLocaleString('en-IN')}
         </div>
         <div className="text-xs font-medium text-gray-400 dark:text-gray-500">
           Includes Sec 234F late fee + Sec 234A/B/C interest estimates.

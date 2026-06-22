@@ -40,7 +40,7 @@ export const DEADLINES_DATA: Deadline[] = [
     date: "2026-07-31",
     displayDate: "July 31",
     applicableProfiles: ["Salaried", "Freelancer", "Business"],
-    penalty: "Late fee up to ₹5,000 under Sec 234F. No carry-forward of losses.",
+    penalty: "Late fee up to Rs 5,000 under Sec 234F. No carry-forward of losses.",
     type: "ITR"
   },
   {
@@ -59,7 +59,7 @@ export const DEADLINES_DATA: Deadline[] = [
     date: "2026-09-30",
     displayDate: "Sept 30",
     applicableProfiles: ["Business"],
-    penalty: "0.5% of turnover or ₹1.5L max penalty.",
+    penalty: "0.5% of turnover or Rs 1.5L max penalty.",
     type: "Audit"
   },
   {
@@ -68,7 +68,7 @@ export const DEADLINES_DATA: Deadline[] = [
     date: "2026-10-31",
     displayDate: "Oct 31",
     applicableProfiles: ["Business"],
-    penalty: "Late fee up to ₹5,000 under Sec 234F.",
+    penalty: "Late fee up to Rs 5,000 under Sec 234F.",
     type: "ITR"
   },
   {
@@ -97,7 +97,7 @@ export const DEADLINES_DATA: Deadline[] = [
     date: "2027-03-31",
     displayDate: "Mar 31",
     applicableProfiles: ["Salaried", "Freelancer", "Business"],
-    penalty: "₹5,000 late fee. Last chance to file for FY25-26.",
+    penalty: "Rs 5,000 late fee. Last chance to file for FY25-26.",
     type: "ITR"
   }
 ];

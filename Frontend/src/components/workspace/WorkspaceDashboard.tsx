@@ -8,6 +8,7 @@ import {
   Check,
   ChevronRight,
   CircleDollarSign,
+  ClipboardCheck,
   FileSearch,
   Loader2,
   Plus,
@@ -228,7 +229,7 @@ export function WorkspaceDashboard() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-7xl flex-1 px-5 pb-20 pt-28 lg:px-8">
+    <main className="mx-auto w-full max-w-[1600px] flex-1 px-5 pb-20 pt-28 lg:px-8">
       <header className="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">Taxpayer workspace</p>
@@ -344,8 +345,8 @@ export function WorkspaceDashboard() {
           </div>
 
           {activeFiling && (
-            <div className="grid gap-6 xl:grid-cols-3">
-              <div className="minimal-card p-6">
+            <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 2xl:grid-cols-4">
+              <div className="minimal-card p-6 flex flex-col h-full">
                 <div className="mb-6 flex items-start justify-between">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Filing progress</p>
@@ -366,7 +367,7 @@ export function WorkspaceDashboard() {
                     );
                   })}
                 </div>
-                <label className="mt-5 block text-sm font-bold">
+                <label className="mt-auto block pt-5 text-sm font-bold">
                   Private filing notes
                   <textarea
                     value={draft.notes}
@@ -381,7 +382,7 @@ export function WorkspaceDashboard() {
                 </label>
               </div>
 
-              <div className="minimal-card p-6">
+              <div className="minimal-card p-6 flex flex-col h-full">
                 <div className="mb-6 flex items-start justify-between">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Income sources</p>
@@ -394,14 +395,14 @@ export function WorkspaceDashboard() {
                 </p>
                 <Link
                   href={`/income${activeFiling ? `?filing=${activeFiling.id}` : ""}`}
-                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition hover:bg-primary/90"
+                  className="mt-auto inline-flex w-fit items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition hover:bg-primary/90"
                 >
                   Open income wizard
                   <ArrowRight size={16} />
                 </Link>
               </div>
 
-              <div className="minimal-card p-6">
+              <div className="minimal-card p-6 flex flex-col h-full">
                 <div className="mb-6 flex items-start justify-between">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Document import</p>
@@ -414,9 +415,29 @@ export function WorkspaceDashboard() {
                 </p>
                 <Link
                   href={`/documents${activeFiling ? `?filing=${activeFiling.id}` : ""}`}
-                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition hover:bg-primary/90"
+                  className="mt-auto inline-flex w-fit items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition hover:bg-primary/90"
                 >
                   Open document workbench
+                  <ArrowRight size={16} />
+                </Link>
+              </div>
+
+              <div className="minimal-card p-6 flex flex-col h-full">
+                <div className="mb-6 flex items-start justify-between">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Return preparation</p>
+                    <h3 className="mt-1 text-2xl font-black">Generate ITR schedules</h3>
+                  </div>
+                  <ClipboardCheck size={28} />
+                </div>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  Build ITR-1 through ITR-7 schedule packs, validate the return, estimate refund or tax payable, and export draft portal JSON.
+                </p>
+                <Link
+                  href={`/prepare${activeFiling ? `?filing=${activeFiling.id}` : ""}`}
+                  className="mt-auto inline-flex w-fit items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition hover:bg-primary/90"
+                >
+                  Open preparation engine
                   <ArrowRight size={16} />
                 </Link>
               </div>

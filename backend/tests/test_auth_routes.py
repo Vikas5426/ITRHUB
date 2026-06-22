@@ -278,3 +278,103 @@ def test_income_sources_wizard_updates_workspace_and_recommends_itr(client: Test
 	progress_data = progress_response.json()["progress_data"]
 	assert progress_data["notes"] == "Documents pending"
 	assert progress_data["income_sources"]["salary"]["gross_salary"] == 1_800_000
+
+
+def test_return_preparation_generates_schedules_validations_and_portal_json(client: TestClient):
+	register(client)
+	profile_id = client.get("/api/workspace/profiles").json()[0]["id"]
+	workspace = client.post(
+		"/api/workspace/filings",
+		json={"profile_id": profile_id, "assessment_year_start": 2026},
+	).json()
+
+	payload = {
+		"salary": {
+			"enabled": True,
+			"employer_count": 1,
+			"gross_salary": 1_200_000,
+			"standard_deduction": 75_000,
+			"professional_tax": 0,
+			"tds": 90_000,
+		},
+		"house_property": {
+			"enabled": False,
+			"property_count": 1,
+			"rental_income": 0,
+			"home_loan_interest": 0,
+			"municipal_taxes": 0,
+		},
+		"business": {
+			"enabled": True,
+			"business_type": "profession",
+			"presumptive_scheme": "none",
+			"gross_receipts": 800_000,
+			"expenses": 250_000,
+			"net_profit": 550_000,
+			"requires_audit": False,
+		},
+		"capital_gains": {
+			"enabled": True,
+			"listed_equity_stcg": 40_000,
+			"listed_equity_ltcg": 100_000,
+			"property_gains": 0,
+			"crypto_vda_gains": 0,
+			"has_loss_carry_forward": False,
+		},
+		"foreign": {
+			"enabled": True,
+			"foreign_income": 20_000,
+			"foreign_assets": True,
+			"foreign_tax_credit": 2_000,
+		},
+		"other": {
+			"interest_income": 25_000,
+			"dividend_income": 10_000,
+			"agricultural_income": 0,
+			"other_income": 0,
+			"exempt_income": 0,
+		},
+		"taxpayer_notes": "",
+	}
+	income = client.put(
+		f"/api/workspace/filings/{workspace['id']}/income-sources",
+		json=payload,
+	)
+	assert income.status_code == 200
+	assert income.json()["recommended_itr"] == "ITR-3"
+
+	prepared = client.post(f"/api/workspace/filings/{workspace['id']}/return-preparation")
+	assert prepared.status_code == 200
+	body = prepared.json()
+	assert body["itr_form"] == "ITR-3"
+	assert body["recommended_itr"] == "ITR-3"
+	assert body["engine_version"] == "ITRHUB-DRAFT-AY2026-27-v1"
+	assert {schedule["code"] for schedule in body["schedules"]} >= {
+		"PART_A_GENERAL",
+		"SCHEDULE_S",
+		"SCHEDULE_BP",
+		"SCHEDULE_CG",
+		"SCHEDULE_FA",
+		"ITR3_PNL",
+	}
+	assert any(issue["code"] == "ITRHUB-005" for issue in body["validations"])
+	assert body["tax_summary"]["gross_total_income"] == 1_945_000
+	assert "partB_TTI" in body["portal_json"]["ITR"]
+	assert body["challan_guidance"]["minor_head"] == "300 - Self Assessment Tax"
+
+	workspace_after = client.get("/api/workspace/filings").json()[0]
+	assert workspace_after["current_section"] == "review"
+	assert workspace_after["completion_percent"] >= 80
+	assert "return_preparation" in workspace_after["progress_data"]["completedSections"]
+
+	loaded = client.get(f"/api/workspace/filings/{workspace['id']}/return-preparation")
+	assert loaded.status_code == 200
+	assert loaded.json()["portal_json"]["ITR"]["form"] == "ITR-3"
+
+	itr1_preview = client.post(
+		f"/api/workspace/filings/{workspace['id']}/return-preparation",
+		json={"itr_form": "ITR-1"},
+	)
+	assert itr1_preview.status_code == 200
+	assert itr1_preview.json()["itr_form"] == "ITR-1"
+	assert any(issue["code"] == "ITRHUB-002" for issue in itr1_preview.json()["validations"])

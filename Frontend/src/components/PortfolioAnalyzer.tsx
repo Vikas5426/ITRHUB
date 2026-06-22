@@ -52,9 +52,11 @@ export function PortfolioAnalyzer() {
   const [loading, setLoading] = useState(false);
   const [selectedTrade, setSelectedTrade] = useState<TradeData | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [notice, setNotice] = useState<{ type: "error" | "info"; message: string } | null>(null);
 
   const handleUpload = async (f: File) => {
     setLoading(true);
+    setNotice(null);
     try {
       const text = await f.text();
       // send as JSON with csv_text for easier integration
@@ -65,17 +67,21 @@ export function PortfolioAnalyzer() {
       });
       const result = await res.json();
       if (result.error) {
-        alert("Error from server: " + result.error);
+        setNotice({ type: "error", message: `Unable to analyze this file: ${result.error}` });
         return;
       }
       if (result.data) {
         if (result.data.length === 0) {
-          alert("No valid trades could be parsed from your CSV. Please ensure you are using the correct columns:\nAsset Name, Asset Type, Buy Date, Sell Date, Buy Price, Sell Price, Quantity");
+          setNotice({
+            type: "error",
+            message: "No valid trades were found. Use columns: Asset Name, Asset Type, Buy Date, Sell Date, Buy Price, Sell Price, Quantity.",
+          });
         }
         setData(result.data);
       }
     } catch (err) {
       console.error(err);
+      setNotice({ type: "info", message: "Backend is unavailable, so sample trades are shown for preview." });
       // Fallback dummy data for preview if backend isn't running
       const dummy: TradeData[] = [
         { id: 1, name: "Reliance Ind", type: "Listed Equity", days: 400, gain: 150000, tax: 3250, bd: "2023-01-10", sd: "2024-02-14", cat: "LTCG" },
@@ -127,6 +133,12 @@ export function PortfolioAnalyzer() {
           </div>
           <h3 className="text-2xl font-black text-black dark:text-white mb-2">Upload your CAMS/CAS Statement</h3>
           <p className="text-gray-500 dark:text-gray-400 font-medium mb-8">Drag and drop your portfolio CSV file here, or click to browse. We will instantly analyze your tax liabilities.</p>
+
+          {notice && (
+            <div className={`mb-6 rounded-2xl border p-4 text-sm font-semibold ${notice.type === "error" ? "border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-300" : "border-blue-500/20 bg-blue-500/10 text-blue-700 dark:text-blue-300"}`}>
+              {notice.message}
+            </div>
+          )}
           
           <div className="flex justify-center gap-4 mb-6">
             <button 
@@ -165,6 +177,12 @@ export function PortfolioAnalyzer() {
                 <FileSpreadsheet size={16} /> New Upload
               </button>
             </div>
+
+            {notice && (
+              <div className={`mb-6 rounded-2xl border p-4 text-sm font-semibold ${notice.type === "error" ? "border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-300" : "border-blue-500/20 bg-blue-500/10 text-blue-700 dark:text-blue-300"}`}>
+                {notice.message}
+              </div>
+            )}
             
             <div className="h-[500px] w-full min-h-[500px] pt-8 focus:outline-none" style={{ outline: 'none' }}>
               <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1} style={{ outline: 'none' }}>

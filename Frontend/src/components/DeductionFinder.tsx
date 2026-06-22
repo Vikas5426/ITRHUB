@@ -17,14 +17,14 @@ const DEDUCTIONS: Deduction[] = [
     id: "80c",
     name: "Section 80C",
     description: "The most popular deduction for tax-saving investments and expenses.",
-    maxLimit: "₹1,50,000",
+    maxLimit: "Rs 1,50,000",
     eligibleInvestments: ["ELSS Mutual Funds", "PPF", "EPF", "LIC Premiums", "Home Loan Principal", "Tuition Fees"],
   },
   {
     id: "80d",
     name: "Section 80D",
     description: "Deduction for medical insurance premiums paid for self and family.",
-    maxLimit: "₹25,000 - ₹1,00,000",
+    maxLimit: "Rs 25,000 - Rs 1,00,000",
     eligibleInvestments: ["Health Insurance Premium", "Preventive Health Checkup"],
   },
   {
@@ -38,14 +38,14 @@ const DEDUCTIONS: Deduction[] = [
     id: "80ccd1b",
     name: "Section 80CCD(1B)",
     description: "Additional deduction for contribution to National Pension Scheme (NPS).",
-    maxLimit: "₹50,000",
+    maxLimit: "Rs 50,000",
     eligibleInvestments: ["NPS Tier-I Account"],
   },
   {
     id: "24b",
     name: "Section 24(b)",
     description: "Deduction on the interest paid for a home loan.",
-    maxLimit: "₹2,00,000",
+    maxLimit: "Rs 2,00,000",
     eligibleInvestments: ["Home Loan Interest Portion"],
   },
   {
@@ -59,7 +59,7 @@ const DEDUCTIONS: Deduction[] = [
     id: "80tta",
     name: "Section 80TTA",
     description: "Deduction on interest income from savings accounts.",
-    maxLimit: "₹10,000",
+    maxLimit: "Rs 10,000",
     eligibleInvestments: ["Savings Account Interest"],
   },
   {
@@ -184,7 +184,7 @@ export function DeductionFinder() {
   }, [searchTerm]);
 
   return (
-    <section className="py-24 px-6 lg:px-12 relative z-10 bg-white dark:bg-transparent overflow-hidden">
+    <section id="deductions" className="py-24 px-6 lg:px-12 relative z-10 bg-white dark:bg-transparent overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div className="max-w-2xl">

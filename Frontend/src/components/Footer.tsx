@@ -1,41 +1,7 @@
 import Link from "next/link";
-import { Hexagon } from "lucide-react";
+import { Hexagon, LockKeyhole, ShieldCheck } from "lucide-react";
 
 import { footerCompanyLinks, footerResourceLinks } from "@/lib/navigation";
-
-const TwitterIcon = ({ size = 24 }: { size?: number }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
-  </svg>
-);
-
-const LinkedinIcon = ({ size = 24 }: { size?: number }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-    <rect x="2" y="9" width="4" height="12" />
-    <circle cx="4" cy="4" r="2" />
-  </svg>
-);
 
 export function Footer() {
   return (
@@ -51,18 +17,20 @@ export function Footer() {
             <p className="text-[#666] dark:text-gray-400 text-sm leading-relaxed max-w-sm">
               Guides, checklists, income capture, and secure document management. All in one place.
             </p>
-            <div className="flex items-center gap-4 mt-2">
-              <Link href="/" aria-label="Twitter" className="text-[#666] hover:text-[#0f0f0f] dark:text-gray-400 dark:hover:text-white transition-colors">
-                <TwitterIcon size={20} />
-              </Link>
-              <Link href="/" aria-label="LinkedIn" className="text-[#666] hover:text-[#0f0f0f] dark:text-gray-400 dark:hover:text-white transition-colors">
-                <LinkedinIcon size={20} />
-              </Link>
+            <div className="mt-2 grid gap-2 text-xs font-bold text-[#666] dark:text-gray-400">
+              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#d7d7d7] px-3 py-2 dark:border-zinc-800">
+                <ShieldCheck size={14} />
+                Built for Indian ITR workflows
+              </div>
+              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#d7d7d7] px-3 py-2 dark:border-zinc-800">
+                <LockKeyhole size={14} />
+                Private workspace first
+              </div>
             </div>
           </div>
 
           <div>
-            <h3 className="font-bold text-black dark:text-white mb-6">Resources</h3>
+            <h3 className="font-bold text-black dark:text-white mb-6">Filing Flow</h3>
             <ul className="flex flex-col gap-3">
               {footerResourceLinks.map((link) => (
                 <li key={link.label}>
@@ -75,7 +43,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-bold text-black dark:text-white mb-6">Company</h3>
+            <h3 className="font-bold text-black dark:text-white mb-6">Tools</h3>
             <ul className="flex flex-col gap-3">
               {footerCompanyLinks.map((link) => (
                 <li key={link.label}>
