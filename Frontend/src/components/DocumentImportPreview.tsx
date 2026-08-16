@@ -8,13 +8,13 @@ export function DocumentImportPreview() {
         <div>
           <p className="mb-3 text-sm font-bold uppercase tracking-[0.25em] text-muted-foreground">Document import</p>
           <h2 className="text-4xl font-black tracking-tight text-black dark:text-white sm:text-5xl">
-            Move filing documents into one reconciliation workspace.
+            Documents belong in Intake.
           </h2>
           <p className="mt-4 max-w-xl text-lg font-medium text-gray-600 dark:text-gray-400">
-            The full Form 16, AIS/TIS, 26AS, and checklist experience now lives on a dedicated page, so the home page stays focused.
+            Upload Form 16, AIS/TIS, 26AS, bank statements, and broker files in one place. Analysis handles extraction and reconciliation.
           </p>
-          <Link href="/documents" className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-md transition hover:bg-primary/90">
-            Open document workbench
+          <Link href="/intake?section=documents" className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-md transition hover:bg-primary/90">
+            Open Intake
             <ArrowRight size={16} />
           </Link>
         </div>

@@ -31,7 +31,7 @@ function AuthForm() {
         }),
       });
       await refresh();
-      router.push("/workspace");
+      router.push("/intake");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to continue");
     } finally {
@@ -49,7 +49,7 @@ function AuthForm() {
             ITRHUB
           </Link>
           <div className="relative my-auto">
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.25em] text-white/50">Your tax workspace</p>
+            <p className="mb-4 text-sm font-bold uppercase tracking-[0.25em] text-white/50">Your tax command center</p>
             <h1 className="max-w-md text-5xl font-black leading-[1.05]">
               One secure place for every return in your family.
             </h1>
@@ -87,7 +87,7 @@ function AuthForm() {
                 ))}
               </div>
               <h2 className="text-4xl font-black tracking-tight">
-                {mode === "login" ? "Welcome back" : "Create your workspace"}
+                {mode === "login" ? "Welcome back" : "Create your account"}
               </h2>
               <p className="mt-2 text-muted-foreground">
                 {mode === "login" ? "Continue your saved filing work." : "Your primary taxpayer profile is created automatically."}
@@ -115,7 +115,7 @@ function AuthForm() {
 
               <button disabled={submitting} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-4 font-bold text-primary-foreground transition hover:opacity-90 disabled:opacity-60">
                 {submitting ? <Loader2 className="animate-spin" size={18} /> : <ArrowRight size={18} />}
-                {mode === "login" ? "Log in securely" : "Create secure workspace"}
+                {mode === "login" ? "Log in securely" : "Create secure account"}
               </button>
               <p className="flex items-center justify-center gap-2 text-center text-xs text-muted-foreground">
                 <LockKeyhole size={13} />

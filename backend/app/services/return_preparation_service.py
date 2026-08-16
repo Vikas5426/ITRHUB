@@ -200,7 +200,28 @@ def _build_common_schedules(
 				"foreign_tax_credit": _money(foreign.get("foreign_tax_credit")),
 			},
 		},
+		{
+			"code": "SCHEDULE_VIA",
+			"name": "Schedule Chapter VI-A Deductions",
+			"status": "ready",
+			"fields": {
+				"sec_80c": _money(income_sources.get("deductions", {}).get("sec_80c")),
+				"sec_80d": _money(income_sources.get("deductions", {}).get("sec_80d_self")) + _money(income_sources.get("deductions", {}).get("sec_80d_parents")),
+				"sec_80ccd_1b": _money(income_sources.get("deductions", {}).get("sec_80ccd_1b")),
+				"sec_80g": _money(income_sources.get("deductions", {}).get("sec_80g")),
+			},
+		},
+		{
+			"code": "SCHEDULE_TDS",
+			"name": "Schedule TDS - Tax Deducted at Source",
+			"status": "ready" if _money(income_summary.get("taxes_paid")) or _money(totals.get("tds_deducted")) else "draft",
+			"fields": {
+				"salary_tds": _money(salary.get("tds")),
+				"total_tds_credit": _money(income_summary.get("taxes_paid")) or _money(totals.get("tds_deducted")),
+			},
+		},
 	]
+
 
 
 def _form_specific_schedules(itr_form: str, income_sources: dict[str, Any]) -> list[dict[str, Any]]:

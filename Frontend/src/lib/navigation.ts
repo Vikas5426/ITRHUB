@@ -1,23 +1,19 @@
 export const primaryNavLinks = [
   { href: "/", label: "Home" },
-  { href: "/workspace", label: "Workspace" },
-  { href: "/income", label: "Income" },
-  { href: "/documents", label: "Documents" },
-  { href: "/prepare", label: "Prepare" },
-  { href: "/portfolio", label: "Portfolio" },
-  { href: "/tracker", label: "Tracker" },
+  { href: "/intake", label: "Intake" },
+  { href: "/analysis", label: "Analysis" },
+  { href: "/track", label: "Track" },
 ];
 
 export const footerResourceLinks = [
-  { label: "Taxpayer Workspace", href: "/workspace" },
-  { label: "Income Source Wizard", href: "/income" },
-  { label: "Document Import", href: "/documents" },
-  { label: "Return Preparation", href: "/prepare" },
+  { label: "Intake Hub", href: "/intake" },
+  { label: "Analysis Center", href: "/analysis" },
+  { label: "Track Everything", href: "/track" },
 ];
 
 export const footerCompanyLinks = [
   { label: "Regime Calculator", href: "/#tax-tools" },
-  { label: "Portfolio Analyzer", href: "/portfolio" },
-  { label: "Deadline Tracker", href: "/tracker" },
+  { label: "Return Preparation", href: "/analysis?section=return" },
+  { label: "Deadline Tracker", href: "/track" },
   { label: "Deduction Finder", href: "/#deductions" },
 ];

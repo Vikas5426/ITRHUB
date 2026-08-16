@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, Download, AlertTriangle, Info, Clock } from "lucide-react";
+import { Calendar, Download, AlertTriangle, Info, Clock, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const SUN_DEADLINE = {
@@ -113,93 +113,93 @@ export function TaxPulse() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "ITRHUB_Tax_Deadlines.ics");
+    link.setAttribute("download", "ITRHUB_Tax_Deadlines_AY2026-27.ics");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   return (
-    <section className="py-24 px-6 lg:px-12 relative z-10 bg-black/5 dark:bg-black/40 overflow-hidden">
+    <section className="py-24 px-6 lg:px-12 relative z-10 bg-muted/20 border-y border-border/40 overflow-hidden">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 items-center">
         
-        {/* Right Side / Text (Order 1 on mobile, 1 on desktop) */}
+        {/* Text Info */}
         <div className="lg:col-span-5 order-2 lg:order-1 relative z-20">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider mb-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-wider mb-6 shadow-xs">
             <Clock size={14} />
-            <span>Tax Pulse Tracker</span>
+            <span>Tax Pulse Radar</span>
           </div>
           
-          <h2 className="text-4xl lg:text-5xl font-black mb-6 leading-tight text-black dark:text-white tracking-tight">
-            Never pay a <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">late fee</span> again.
+          <h2 className="text-4xl lg:text-5xl font-black mb-6 leading-tight text-foreground tracking-tight">
+            Never pay a <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500">late fee</span> again.
           </h2>
           
-          <div className="relative pl-6 border-l-4 border-gray-200 dark:border-gray-800 mb-8">
-            <p className="text-lg text-gray-600 dark:text-gray-400 font-medium leading-relaxed">
-              Penalties can reach Rs 5,000 overnight. Our tracker keeps you ahead of the curve with smart alerts for ITR, Advance Tax, and Audit deadlines tailored to your profile.
+          <div className="relative pl-6 border-l-4 border-primary/30 mb-8">
+            <p className="text-base text-muted-foreground font-medium leading-relaxed">
+              Statutory deadlines under Section 139(1) for ITR, Advance Tax installments, and Tax Audits carry strict penalties and interest under Section 234A/B/C/F. Stay ahead with live orbital tracking.
             </p>
           </div>
 
-          <div className="bg-white/80 dark:bg-gray-900/50 backdrop-blur-md rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm mb-8">
+          <div className="bg-card rounded-3xl border border-border p-6 shadow-xs mb-6">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">ITR Deadline in</span>
-                <div className="text-4xl font-black text-black dark:text-white mt-1">
-                  {daysLeft} <span className="text-xl font-bold text-gray-400">days</span>
+                <span className="text-xs font-black text-muted-foreground uppercase tracking-wider">ITR-1/2 Deadline in</span>
+                <div className="text-4xl font-black text-foreground mt-1">
+                  {daysLeft} <span className="text-xl font-bold text-muted-foreground">days</span>
                 </div>
               </div>
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <Calendar className="text-primary w-8 h-8" />
+              <div className="size-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                <Calendar className="size-7" />
               </div>
             </div>
           </div>
 
           <button 
             onClick={generateICS}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-black dark:bg-white text-white dark:text-black rounded-xl font-bold shadow-lg hover:-translate-y-1 hover:shadow-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-primary text-primary-foreground rounded-full font-black shadow-lg hover:bg-primary/90 hover:-translate-y-0.5 transition-all"
           >
-            <Download size={20} />
-            Export to Calendar (.ics)
+            <Download size={18} />
+            <span>Export to Calendar (.ics)</span>
           </button>
-          <p className="text-xs font-medium text-gray-500 mt-3 text-center sm:text-left">
-            Includes smart reminders 7 days before each deadline.
+          <p className="text-xs font-bold text-muted-foreground mt-3 text-center sm:text-left">
+            Includes auto-reminders 7 days before each deadline.
           </p>
         </div>
 
-        {/* Left Side / Solar System (Order 2 on mobile, 2 on desktop) */}
-        <div className="lg:col-span-7 order-1 lg:order-2 h-[500px] lg:h-[600px] relative w-full flex items-center justify-center pointer-events-auto">
+        {/* Solar System Radar */}
+        <div className="lg:col-span-7 order-1 lg:order-2 h-[480px] lg:h-[580px] relative w-full flex items-center justify-center pointer-events-auto">
           
           {/* Subtle Background Glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-radial from-primary/10 to-transparent opacity-50 blur-2xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-radial from-amber-500/10 to-transparent opacity-60 blur-3xl pointer-events-none" />
 
-          {/* Orbit Rings (Decorative) */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full border border-gray-300 dark:border-gray-800 border-dashed opacity-50" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full border border-gray-300 dark:border-gray-800 border-dashed opacity-30" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full border border-gray-300 dark:border-gray-800 border-dashed opacity-20" />
+          {/* Orbit Rings */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] rounded-full border border-border/80 border-dashed opacity-50" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] rounded-full border border-border/60 border-dashed opacity-40" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] rounded-full border border-border/40 border-dashed opacity-30" />
 
           {/* The Sun (ITR Deadline) */}
           <motion.div
-            animate={{ scale: [1, 1.05, 1] }}
+            animate={{ scale: [1, 1.04, 1] }}
             transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center group cursor-help"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center group cursor-pointer"
           >
             <div className="relative">
-              <div className="absolute inset-0 bg-primary/40 blur-[30px] rounded-full" />
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-primary to-orange-500 border-2 border-white/20 shadow-[0_0_50px_rgba(var(--primary),0.6)] flex items-center justify-center relative z-10 transition-transform duration-300 group-hover:scale-110">
-                <div className="text-center">
-                  <span className="block text-2xl md:text-3xl font-black text-white">{SUN_DEADLINE.displayDate}</span>
-                  <span className="block text-xs md:text-sm font-bold text-white/90 uppercase tracking-widest mt-1">ITR Filing</span>
+              <div className="absolute inset-0 bg-amber-500/30 blur-[25px] rounded-full" />
+              <div className="w-32 h-32 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 border-2 border-white/40 shadow-[0_0_40px_rgba(245,158,11,0.5)] flex items-center justify-center relative z-10 transition-transform duration-300 group-hover:scale-105">
+                <div className="text-center text-white">
+                  <span className="block text-2xl md:text-3xl font-black">{SUN_DEADLINE.displayDate}</span>
+                  <span className="block text-[10px] md:text-xs font-black uppercase tracking-widest mt-1 opacity-90">ITR Filing</span>
                 </div>
               </div>
             </div>
             
             {/* Sun Tooltip */}
-            <div className="absolute top-full mt-4 w-64 p-4 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+            <div className="absolute top-full mt-3 w-64 p-4 bg-card/95 backdrop-blur-xl rounded-2xl border border-border shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                <div className="flex items-start gap-3">
-                 <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={18} />
+                 <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={16} />
                  <div>
-                   <h4 className="font-bold text-gray-900 dark:text-white text-sm mb-1">Missing this deadline?</h4>
-                   <p className="text-xs font-medium text-gray-600 dark:text-gray-400">{SUN_DEADLINE.penalty}</p>
+                   <h4 className="font-black text-foreground text-xs mb-1">July 31 Statutory Due Date</h4>
+                   <p className="text-[11px] font-medium text-muted-foreground leading-relaxed">{SUN_DEADLINE.penalty}</p>
                  </div>
                </div>
             </div>
@@ -210,34 +210,34 @@ export function TaxPulse() {
             <motion.div
               key={planet.id}
               initial={{ y: 0 }}
-              animate={{ y: [-10, 10, -10] }}
+              animate={{ y: [-8, 8, -8] }}
               transition={{ 
                 repeat: Infinity, 
-                duration: 5 + index, 
+                duration: 4.5 + index, 
                 ease: "easeInOut",
-                delay: index * 0.5 
+                delay: index * 0.4 
               }}
-              className="absolute z-10 flex flex-col items-center group cursor-help"
+              className="absolute z-10 flex flex-col items-center group cursor-pointer"
               style={planet.position}
             >
               <div className="relative">
-                <div className={`absolute inset-0 ${planet.color} blur-[15px] rounded-full opacity-60`} />
-                <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full ${planet.color} ${planet.shadow} border-2 border-white/20 shadow-lg flex items-center justify-center relative z-10 transition-transform duration-300 group-hover:scale-125`}>
-                  <span className="text-xs md:text-sm font-black text-white text-center leading-tight px-1">{planet.displayDate}</span>
+                <div className={`absolute inset-0 ${planet.color} blur-[12px] rounded-full opacity-50`} />
+                <div className={`w-11 h-11 md:w-14 md:h-14 rounded-full ${planet.color} ${planet.shadow} border-2 border-white/30 shadow-md flex items-center justify-center relative z-10 transition-transform duration-300 group-hover:scale-120`}>
+                  <span className="text-[11px] md:text-xs font-black text-white text-center leading-tight px-1">{planet.displayDate}</span>
                 </div>
               </div>
 
-              <div className="mt-3 text-center bg-white/80 dark:bg-black/50 backdrop-blur-sm px-2 py-1 rounded-md border border-gray-200 dark:border-gray-800">
-                <span className="text-[10px] md:text-xs font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap">{planet.name}</span>
+              <div className="mt-2 text-center bg-card/90 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-border shadow-xs">
+                <span className="text-[10px] md:text-[11px] font-black text-foreground whitespace-nowrap">{planet.name}</span>
               </div>
               
               {/* Planet Tooltip */}
-              <div className="absolute top-full mt-2 w-56 p-4 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 origin-top transform scale-95 group-hover:scale-100">
-                 <div className="flex items-start gap-3">
-                   <Info className={`${planet.color.replace('bg-', 'text-')} shrink-0 mt-0.5`} size={18} />
+              <div className="absolute top-full mt-2 w-56 p-3.5 bg-card/95 backdrop-blur-xl rounded-2xl border border-border shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 origin-top transform scale-95 group-hover:scale-100">
+                 <div className="flex items-start gap-2.5">
+                   <Info className={`${planet.color.replace('bg-', 'text-')} shrink-0 mt-0.5`} size={16} />
                    <div>
-                     <h4 className="font-bold text-gray-900 dark:text-white text-sm mb-1">Penalty Impact</h4>
-                     <p className="text-xs font-medium text-gray-600 dark:text-gray-400">{planet.penalty}</p>
+                     <h4 className="font-black text-foreground text-xs mb-1">Statutory Impact</h4>
+                     <p className="text-[11px] font-medium text-muted-foreground leading-relaxed">{planet.penalty}</p>
                    </div>
                  </div>
               </div>
@@ -250,3 +250,4 @@ export function TaxPulse() {
     </section>
   );
 }
+

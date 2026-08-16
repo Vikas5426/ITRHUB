@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { UploadCloud, FileSpreadsheet, X, ShieldAlert } from "lucide-react";
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend, ReferenceLine } from 'recharts';
 
+import { PORTFOLIO_ANALYSIS_STORAGE_KEY } from "@/lib/storageKeys";
+
 type TradeData = {
   id: number;
   name: string;
@@ -54,6 +56,15 @@ export function PortfolioAnalyzer() {
   const [dragActive, setDragActive] = useState(false);
   const [notice, setNotice] = useState<{ type: "error" | "info"; message: string } | null>(null);
 
+  const saveAnalysis = (trades: TradeData[], source: string) => {
+    setData(trades);
+    window.localStorage.setItem(
+      PORTFOLIO_ANALYSIS_STORAGE_KEY,
+      JSON.stringify({ source, generatedAt: new Date().toISOString(), trades }),
+    );
+    window.dispatchEvent(new Event("itrhub:portfolio-analysis-updated"));
+  };
+
   const handleUpload = async (f: File) => {
     setLoading(true);
     setNotice(null);
@@ -77,7 +88,7 @@ export function PortfolioAnalyzer() {
             message: "No valid trades were found. Use columns: Asset Name, Asset Type, Buy Date, Sell Date, Buy Price, Sell Price, Quantity.",
           });
         }
-        setData(result.data);
+        saveAnalysis(result.data, f.name);
       }
     } catch (err) {
       console.error(err);
@@ -90,7 +101,7 @@ export function PortfolioAnalyzer() {
         { id: 4, name: "Navi Mumbai Flat", type: "Real Estate", days: 850, gain: 2500000, tax: 325000, bd: "2022-01-10", sd: "2024-05-10", cat: "LTCG", comp: { opt1: 312500, opt2: 350000, chosen: 312500 } },
         { id: 5, name: "Infosys", type: "Listed Equity", days: 450, gain: -20000, tax: 0, bd: "2022-10-10", sd: "2024-01-03", cat: "Loss" },
       ];
-      setData(dummy);
+      saveAnalysis(dummy, "Sample preview data");
     } finally {
       setLoading(false);
     }
@@ -173,7 +184,14 @@ export function PortfolioAnalyzer() {
                 <h3 className="text-2xl font-black text-black dark:text-white mb-1">Tax Impact Map</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Bubble size represents the total tax amount. Click a bubble to view trade details.</p>
               </div>
-              <button onClick={() => setData([])} className="text-sm font-bold text-gray-500 hover:text-black dark:hover:text-white flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setData([]);
+                  window.localStorage.removeItem(PORTFOLIO_ANALYSIS_STORAGE_KEY);
+                  window.dispatchEvent(new Event("itrhub:portfolio-analysis-updated"));
+                }}
+                className="text-sm font-bold text-gray-500 hover:text-black dark:hover:text-white flex items-center gap-2"
+              >
                 <FileSpreadsheet size={16} /> New Upload
               </button>
             </div>

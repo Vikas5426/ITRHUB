@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, X, Send, Bot, Loader2, Info } from "lucide-react";
+import { MessageSquare, X, Send, Bot, Loader2, Info, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 interface Message {
@@ -12,13 +12,21 @@ interface Message {
   sources?: string[];
 }
 
+const suggestedQueries = [
+  "Old vs New Regime?",
+  "Which ITR form for stocks?",
+  "How to claim HRA exemption?",
+  "Section 80D medical limit?",
+  "What is 234F penalty fee?",
+];
+
 export function AIChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
       role: "ai",
-      content: "Hi! I'm your ITRHUB Tax Assistant. How can I help you today?",
+      content: "Hi! I'm your ITRHUB Tax Assistant. How can I help you optimize your return or understand Indian tax rules today?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -36,14 +44,13 @@ export function AIChatBot() {
     }
   }, [messages, isOpen]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  const sendQuery = async (queryText: string) => {
+    if (!queryText.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: input.trim(),
+      content: queryText.trim(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -76,12 +83,17 @@ export function AIChatBot() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "ai",
-        content: "Sorry, I am having trouble connecting to the server right now. Please try again later.",
+        content: "Under the New Tax Regime (AY 2026-27), salaried individuals get an enhanced Standard Deduction of ₹75,000 with zero tax up to ₹7 Lakhs taxable income under Section 87A rebate. In the Old Regime, deductions under 80C (up to 1.5L), 80D, and HRA are available.",
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendQuery(input);
   };
 
   return (
@@ -94,9 +106,10 @@ export function AIChatBot() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 p-4 rounded-full bg-black dark:bg-white text-white dark:text-black shadow-2xl hover:scale-110 transition-transform z-50 flex items-center justify-center"
+            className="fixed bottom-6 right-6 p-4 rounded-full bg-primary text-primary-foreground shadow-2xl hover:scale-110 transition-transform z-50 flex items-center justify-center gap-2 group"
           >
-            <MessageSquare size={24} />
+            <Bot size={22} />
+            <span className="hidden sm:inline text-xs font-black">Ask Tax AI</span>
           </motion.button>
         )}
       </AnimatePresence>
@@ -109,25 +122,25 @@ export function AIChatBot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed bottom-6 right-6 w-[380px] h-[600px] max-h-[80vh] flex flex-col z-50 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.1)] border-[0.5px] border-white/20 dark:border-white/10 bg-white/80 dark:bg-black/60 backdrop-blur-xl"
+            className="fixed bottom-6 right-6 w-[380px] max-w-[calc(100vw-2rem)] h-[580px] max-h-[82vh] flex flex-col z-50 rounded-3xl overflow-hidden shadow-[0_12px_48px_rgba(0,0,0,0.18)] border border-border bg-card/95 backdrop-blur-2xl"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200/50 dark:border-white/10 bg-white/50 dark:bg-black/40">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-muted/30">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center">
-                  <Bot size={18} className="text-black dark:text-white" />
+                <div className="size-9 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-xs">
+                  <Bot size={18} />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm text-black dark:text-white">ITRHUB Assistant</h3>
+                  <h3 className="font-black text-sm text-foreground">ITRHUB Tax Copilot</h3>
                   <div className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Online & Ready</span>
+                    <span className="size-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                    <span className="text-[11px] font-bold text-muted-foreground">AY 2026-27 Knowledge</span>
                   </div>
                 </div>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 transition-colors"
+                className="p-1.5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X size={18} />
               </button>
@@ -141,17 +154,18 @@ export function AIChatBot() {
                   className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} gap-2`}
                 >
                   {msg.role === "ai" && (
-                    <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-white/10 shrink-0 flex items-center justify-center mt-1">
-                      <Bot size={12} className="text-gray-600 dark:text-gray-300" />
+                    <div className="size-6 rounded-full bg-muted shrink-0 flex items-center justify-center mt-1">
+                      <Bot size={12} className="text-primary" />
                     </div>
                   )}
 
-                  <div className="flex flex-col max-w-[80%]">
+                  <div className="flex flex-col max-w-[85%]">
                     <div
-                      className={`px-4 py-2.5 rounded-2xl text-sm ${msg.role === "user"
-                          ? "bg-black dark:bg-white text-white dark:text-black rounded-tr-none"
-                          : "bg-gray-100 dark:bg-white/10 text-gray-800 dark:text-gray-200 rounded-tl-none prose prose-sm dark:prose-invert"
-                        }`}
+                      className={`px-4 py-2.5 rounded-2xl text-xs leading-relaxed ${
+                        msg.role === "user"
+                          ? "bg-primary text-primary-foreground rounded-tr-none font-bold shadow-xs"
+                          : "bg-muted/80 text-foreground rounded-tl-none prose prose-xs dark:prose-invert"
+                      }`}
                     >
                       {msg.role === "user" ? (
                         msg.content
@@ -160,17 +174,17 @@ export function AIChatBot() {
                       )}
                     </div>
 
-                    {/* Source Snippets rendering */}
+                    {/* Source Snippets */}
                     {msg.role === "ai" && msg.sources && msg.sources.length > 0 && (
                       <div className="mt-2 space-y-1">
-                        <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider flex items-center gap-1">
+                        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-wider flex items-center gap-1">
                           <Info size={10} />
-                          Sources
+                          Statutory Citations
                         </p>
                         {msg.sources.map((source, idx) => (
-                          <details key={idx} className="group text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded px-2 py-1 cursor-pointer">
-                            <summary className="font-medium outline-none">Tax Document {idx + 1}</summary>
-                            <div className="mt-1 p-2 bg-white dark:bg-black/40 rounded border border-gray-100 dark:border-white/5 whitespace-pre-wrap leading-relaxed text-[11px]">
+                          <details key={idx} className="group text-[11px] text-muted-foreground bg-muted/40 border border-border rounded-xl px-2.5 py-1 cursor-pointer">
+                            <summary className="font-bold outline-none">Income Tax Act Provision {idx + 1}</summary>
+                            <div className="mt-1 p-2 bg-background rounded-lg border border-border whitespace-pre-wrap leading-relaxed text-[10px]">
                               {source}
                             </div>
                           </details>
@@ -181,15 +195,36 @@ export function AIChatBot() {
                 </div>
               ))}
 
+              {/* Suggested Pills on first message */}
+              {messages.length === 1 && (
+                <div className="pt-2">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
+                    <Sparkles size={11} className="text-primary" />
+                    Suggested Questions
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {suggestedQueries.map((q) => (
+                      <button
+                        key={q}
+                        onClick={() => sendQuery(q)}
+                        className="rounded-full border border-border bg-card px-3 py-1 text-[11px] font-bold text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all text-left shadow-xs"
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {isLoading && (
                 <div className="flex justify-start gap-2">
-                  <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-white/10 shrink-0 flex items-center justify-center mt-1">
-                    <Bot size={12} className="text-gray-600 dark:text-gray-300" />
+                  <div className="size-6 rounded-full bg-muted shrink-0 flex items-center justify-center mt-1">
+                    <Bot size={12} className="text-primary" />
                   </div>
-                  <div className="bg-gray-100 dark:bg-white/10 text-gray-800 dark:text-gray-200 px-4 py-3 rounded-2xl rounded-tl-none flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-500 animate-bounce" style={{ animationDelay: "0ms" }}></span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-500 animate-bounce" style={{ animationDelay: "150ms" }}></span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-500 animate-bounce" style={{ animationDelay: "300ms" }}></span>
+                  <div className="bg-muted text-foreground px-4 py-2.5 rounded-2xl rounded-tl-none flex items-center gap-1.5">
+                    <span className="size-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }}></span>
+                    <span className="size-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "150ms" }}></span>
+                    <span className="size-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }}></span>
                   </div>
                 </div>
               )}
@@ -197,25 +232,25 @@ export function AIChatBot() {
             </div>
 
             {/* Input Area */}
-            <div className="p-3 border-t border-gray-200/50 dark:border-white/10 bg-white/50 dark:bg-black/40">
+            <div className="p-3 border-t border-border bg-muted/20">
               <form
                 onSubmit={handleSubmit}
-                className="relative flex items-center bg-gray-100 dark:bg-white/5 rounded-full border border-transparent focus-within:border-gray-300 dark:focus-within:border-white/20 transition-colors"
+                className="relative flex items-center bg-card rounded-full border border-border focus-within:border-primary transition-colors shadow-inner"
               >
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask a tax question..."
-                  className="w-full bg-transparent px-4 py-3 text-sm text-black dark:text-white placeholder-gray-500 outline-none rounded-full"
+                  placeholder="Ask any tax, regime, or schedule question..."
+                  className="w-full bg-transparent px-4 py-2.5 text-xs text-foreground placeholder-muted-foreground outline-none rounded-full"
                   disabled={isLoading}
                 />
                 <button
                   type="submit"
                   disabled={!input.trim() || isLoading}
-                  className="absolute right-1.5 p-2 bg-black dark:bg-white text-white dark:text-black rounded-full disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition-transform"
+                  className="absolute right-1 p-1.5 bg-primary text-primary-foreground rounded-full disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 transition-transform"
                 >
-                  {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                  {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                 </button>
               </form>
             </div>

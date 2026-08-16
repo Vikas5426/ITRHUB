@@ -19,7 +19,7 @@ export function TrackerHeader({ profile, setProfile }: { profile: UserProfile, s
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-gray-900 p-4 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
       <div className="flex items-center gap-3">
-        <span className="text-sm font-bold text-gray-500 dark:text-gray-400">I am a →</span>
+        <span className="text-sm font-bold text-gray-500 dark:text-gray-400">I am a</span>
         <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-full">
           {profiles.map((p) => (
             <button
@@ -39,7 +39,7 @@ export function TrackerHeader({ profile, setProfile }: { profile: UserProfile, s
 
       <div className="flex items-center gap-4">
         <div className="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full border border-primary/20 uppercase tracking-wider">
-          FY 2025–26
+          FY 2025-26
         </div>
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 font-mono text-sm font-medium bg-gray-50 dark:bg-gray-800 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700">
           <Clock size={14} className="text-primary" />

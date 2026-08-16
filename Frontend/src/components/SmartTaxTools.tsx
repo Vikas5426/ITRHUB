@@ -1,81 +1,110 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BellRing, ClipboardCheck, FileText, FolderOpen } from "lucide-react";
+import { ArrowRight, BellRing, ClipboardCheck, FileText, FolderOpen, Sparkles, ShieldCheck } from "lucide-react";
 import { TaxRegimeComparison } from "./TaxRegimeComparison";
 
 const nextSteps = [
   {
-    href: "/workspace",
-    title: "Open workspace",
-    text: "Create taxpayer profiles and keep filing progress autosaved.",
+    href: "/intake",
+    title: "Open Return Intake",
+    text: "Add personal details, income streams, proof vault, and broker CAS files.",
     icon: FolderOpen,
+    badge: "Step 1",
   },
   {
-    href: "/documents",
-    title: "Import documents",
-    text: "Upload Form 16, AIS/TIS, 26AS, and broker statements for reconciliation.",
+    href: "/analysis",
+    title: "Launch Analysis Hub",
+    text: "Live audit score, tax regime simulator, portfolio capital gains, and deduction audit.",
     icon: FileText,
+    badge: "Step 2",
   },
   {
-    href: "/tracker",
-    title: "Track deadlines",
-    text: "Export ITR, advance tax, and audit dates to your calendar.",
+    href: "/track",
+    title: "Track Deadlines & Status",
+    text: "Monitor statutory due dates, delay exposure calculator, challans, and refund tracking.",
     icon: BellRing,
+    badge: "Step 3",
   },
   {
-    href: "/prepare",
-    title: "Prepare return",
-    text: "Generate schedules, validations, tax payable, challan guidance, and JSON.",
+    href: "/analysis?section=return",
+    title: "Prepare & Export JSON",
+    text: "Generate schedules, offline schema validation, challan guidance, and portal JSON.",
     icon: ClipboardCheck,
+    badge: "Filing",
   },
 ];
 
 export function SmartTaxTools() {
   return (
-    <section id="tax-tools" className="py-20 px-6 lg:px-12 relative z-10 bg-gray-50 dark:bg-transparent">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-5xl font-black mb-4 leading-tight text-black dark:text-white">Smart Tax Tools</h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 font-medium max-w-2xl mx-auto">
-            Make informed decisions before you file. Compare regimes here, then continue into the filing workspace for the full guided flow.
+    <section id="tax-tools" className="py-24 px-6 lg:px-12 relative z-10 bg-muted/10 border-b border-border/40">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-14">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-wider mb-4 shadow-xs">
+            <Sparkles size={14} />
+            <span>Interactive Tax Intelligence</span>
+          </div>
+          <h2 className="text-4xl lg:text-5xl font-black mb-3 leading-tight text-foreground tracking-tight">
+            Smart Tax Tools & Simulator
+          </h2>
+          <p className="text-sm md:text-base text-muted-foreground font-medium max-w-2xl mx-auto">
+            Test scenarios in real time with the AY 2026-27 decision engine, then seamlessly transition into Intake, Analysis, or Track.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.3fr_0.7fr] items-stretch">
+          {/* Main Hero Regime Engine */}
           <TaxRegimeComparison />
 
-          <div className="minimal-card p-8 flex flex-col justify-between relative overflow-hidden group">
-             <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-white/5 blur-[100px] rounded-full pointer-events-none opacity-0 dark:opacity-100 transition-opacity" />
-             <div className="relative z-10">
-              <h3 className="text-2xl font-bold mb-2 text-black dark:text-white">Continue with the right next step</h3>
-              <p className="text-gray-500 dark:text-muted-foreground font-medium mb-6">
-                This page should not make you hunt. Once you have a rough regime estimate, move into the dedicated area that matches what you are trying to finish.
-              </p>
+          {/* Next Steps Card */}
+          <div className="rounded-3xl border border-border bg-card p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group shadow-sm">
+            <div className="absolute -bottom-20 -right-20 size-64 bg-primary/5 blur-[90px] rounded-full pointer-events-none" />
+            
+            <div className="relative z-10">
+              <div className="mb-5">
+                <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground px-2.5 py-0.5 rounded-full bg-muted">
+                  Workflow Navigation
+                </span>
+                <h3 className="text-xl font-black text-foreground mt-2">Where to go next?</h3>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  Move directly into the dedicated workbench for your current filing stage.
+                </p>
+              </div>
 
               <div className="grid gap-3">
                 {nextSteps.map((step) => (
                   <Link
                     key={step.href}
                     href={step.href}
-                    className="group/step flex items-start gap-3 rounded-2xl border border-border bg-muted/30 p-4 transition hover:border-primary hover:bg-primary/5"
+                    className="group/step flex items-start gap-3.5 rounded-2xl border border-border/80 bg-muted/20 p-4 transition-all hover:border-primary hover:bg-muted/40 hover:-translate-y-0.5 shadow-xs"
                   >
-                    <step.icon size={19} className="mt-0.5 text-primary" />
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-black text-black dark:text-white">{step.title}</span>
-                      <span className="mt-1 block text-sm text-muted-foreground">{step.text}</span>
-                    </span>
-                    <ArrowRight size={16} className="mt-1 opacity-40 transition group-hover/step:translate-x-1 group-hover/step:opacity-100" />
+                    <div className="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5 group-hover/step:bg-primary group-hover/step:text-primary-foreground transition-colors">
+                      <step.icon size={18} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="block text-xs font-black text-foreground">{step.title}</span>
+                        <span className="text-[9px] font-black text-primary uppercase px-2 py-0.2 rounded-full bg-primary/10">
+                          {step.badge}
+                        </span>
+                      </div>
+                      <span className="mt-1 block text-[11px] text-muted-foreground leading-relaxed font-medium">
+                        {step.text}
+                      </span>
+                    </div>
+                    <ArrowRight size={14} className="mt-1 text-muted-foreground opacity-40 transition group-hover/step:translate-x-1 group-hover/step:opacity-100 shrink-0" />
                   </Link>
                 ))}
               </div>
             </div>
             
-            <div className="mt-auto p-4 rounded-xl bg-gray-100 dark:bg-primary/10 border border-gray-200 dark:border-primary/20 flex items-start gap-3 relative z-10">
-              <FileText className="text-green-600 dark:text-primary shrink-0 mt-0.5 transition-colors" size={20} />
+            <div className="mt-6 p-4 rounded-2xl bg-muted/40 border border-border flex items-start gap-3 relative z-10 shadow-xs">
+              <ShieldCheck className="text-primary shrink-0 mt-0.5" size={18} />
               <div>
-                <p className="text-sm text-black dark:text-primary font-bold transition-colors">Single filing path</p>
-                <p className="text-xs text-gray-500 dark:text-muted-foreground font-medium mt-1">Income, documents, portfolio, and deadlines now point back to one workspace instead of competing flows.</p>
+                <p className="text-xs text-foreground font-black">Unified Filing Pipeline</p>
+                <p className="text-[11px] text-muted-foreground font-medium mt-0.5">
+                  Inputs live in Intake, calculations compute in Analysis, and statutory dates sync in Track.
+                </p>
               </div>
             </div>
           </div>

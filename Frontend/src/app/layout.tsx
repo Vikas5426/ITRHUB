@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AIChatBot } from "@/components/AIChatBot";
 import { Footer } from "@/components/Footer";
 import { AuthProvider } from "@/components/AuthProvider";
+import { TaxWorkspaceProvider } from "@/context/TaxWorkspaceContext";
 
 export const metadata: Metadata = {
   title: "ITRHUB",
@@ -30,16 +31,19 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <div className="flex flex-col min-h-screen">
-              <main className="flex-1 flex flex-col">
-                {children}
-              </main>
-              <Footer />
-            </div>
-            <AIChatBot />
+            <TaxWorkspaceProvider>
+              <div className="flex flex-col min-h-screen">
+                <main className="flex-1 flex flex-col">
+                  {children}
+                </main>
+                <Footer />
+              </div>
+              <AIChatBot />
+            </TaxWorkspaceProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
+

@@ -89,22 +89,22 @@ export function PortfolioPreview() {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-full w-full rounded-full bg-gray-100 dark:bg-white/5" />
+                <div className="h-full w-full rounded-full bg-muted/40" />
               )}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-3xl font-black text-black dark:text-white">Rs 24.5L</span>
-                <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Total Value</span>
+                <span className="text-3xl font-black text-foreground">₹24.5L</span>
+                <span className="text-xs font-bold text-muted-foreground">Total Portfolio</span>
               </div>
             </div>
 
-            <div className="mt-6 space-y-4 relative z-10">
+            <div className="mt-6 space-y-3 relative z-10">
               {data.map((item) => (
                 <div key={item.name} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                    <span className="text-sm font-bold text-black dark:text-white">{item.name}</span>
+                    <div className="size-3 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="text-xs font-bold text-foreground">{item.name}</span>
                   </div>
-                  <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">{item.value}%</span>
+                  <span className="text-xs font-bold text-muted-foreground">{item.value}%</span>
                 </div>
               ))}
             </div>
@@ -119,31 +119,31 @@ export function PortfolioPreview() {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <h2 className="text-5xl font-black mb-6 leading-tight dark:text-white">
+          <h2 className="text-4xl lg:text-5xl font-black mb-6 leading-tight text-foreground tracking-tight">
             Connect brokers. <br/>
-            <span className="dark:text-primary">Harvest losses.</span>
+            <span className="text-primary">Harvest tax losses.</span>
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 font-medium mb-8">
-            Sync your Zerodha, Groww, or Upstox accounts instantly. We automatically calculate Long-term (LTCG) and Short-term (STCG) capital gains and identify tax-saving opportunities.
+          <p className="text-base text-muted-foreground font-medium mb-8 leading-relaxed">
+            Ingest trade CSVs and CAS reports from Zerodha, Groww, Upstox, and Angel One. We automatically calculate Short-term (STCG 20%) and Long-term (LTCG 12.5%) gains, grandfathering relief, and suggest tax-loss harvesting.
           </p>
           
           <div className="space-y-4">
-            <div className="minimal-card p-5 flex items-center justify-between border-l-4 border-l-red-500 dark:border-l-red-400">
+            <div className="minimal-card p-5 flex items-center justify-between border-l-4 border-l-red-500">
               <div>
-                <h4 className="font-bold text-black dark:text-white">Unrealized Losses</h4>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Available to offset gains</p>
+                <h4 className="font-black text-sm text-foreground">Unrealized Capital Losses</h4>
+                <p className="text-xs font-medium text-muted-foreground">Available to offset taxable STCG/LTCG</p>
               </div>
-              <span className="text-red-600 dark:text-red-400 font-mono font-bold text-lg flex items-center gap-1">
-                <TrendingDown size={18} /> Rs 45,200
+              <span className="text-red-600 dark:text-red-400 font-mono font-black text-base flex items-center gap-1">
+                <TrendingDown size={18} /> ₹45,200
               </span>
             </div>
-            <div className="minimal-card p-5 flex items-center justify-between border-l-4 border-l-green-500 dark:border-l-green-400">
+            <div className="minimal-card p-5 flex items-center justify-between border-l-4 border-l-green-500">
               <div>
-                <h4 className="font-bold text-black dark:text-white">Tax Saved YTD</h4>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Via loss harvesting</p>
+                <h4 className="font-black text-sm text-foreground">Estimated Tax Saved YTD</h4>
+                <p className="text-xs font-medium text-muted-foreground">Via intelligent loss harvesting</p>
               </div>
-              <span className="text-green-600 dark:text-green-400 font-mono font-bold text-lg flex items-center gap-1">
-                <TrendingUp size={18} /> Rs 12,500
+              <span className="text-green-600 dark:text-green-400 font-mono font-black text-base flex items-center gap-1">
+                <TrendingUp size={18} /> ₹12,500
               </span>
             </div>
           </div>

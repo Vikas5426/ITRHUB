@@ -881,7 +881,7 @@ export function FilingSteps() {
                         className="pt-6"
                       >
                         <button 
-                          onClick={() => setNotice({ type: "info", message: "Your document checklist is ready. Continue from the main workspace to finish filing." })}
+                          onClick={() => setNotice({ type: "info", message: "Your document checklist is ready. Continue from Intake and Analysis to finish filing." })}
                           className="w-full py-4 bg-primary text-white rounded-2xl font-black text-lg shadow-lg shadow-primary/30 hover:bg-primary/90 hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
                         >
                           <CheckCircle size={24} />

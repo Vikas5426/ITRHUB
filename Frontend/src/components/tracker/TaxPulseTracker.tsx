@@ -52,7 +52,7 @@ export function TaxPulseTracker() {
         )}
 
         <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 md:p-8 shadow-sm border border-gray-200 dark:border-gray-800">
-          <h3 className="text-xl font-bold mb-6">FY 2025–26 Timeline</h3>
+          <h3 className="text-xl font-bold mb-6">FY 2025-26 Timeline</h3>
           <HorizontalTimeline deadlines={sortedDeadlines} />
         </div>
 

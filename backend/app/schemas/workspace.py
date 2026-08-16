@@ -199,3 +199,44 @@ class ReturnPreparationResponse(BaseModel):
 
 class ReturnPreparationRequest(BaseModel):
 	itr_form: Literal["ITR-1", "ITR-2", "ITR-3", "ITR-4", "ITR-5", "ITR-6", "ITR-7"] | None = None
+
+
+class DeductionsPayload(BaseModel):
+	sec_80c: float = Field(default=0, ge=0, le=150_000)
+	sec_80d_self: float = Field(default=0, ge=0, le=50_000)
+	sec_80d_parents: float = Field(default=0, ge=0, le=50_000)
+	sec_80ccd_1b: float = Field(default=0, ge=0, le=50_000)
+	sec_80e: float = Field(default=0, ge=0)
+	sec_80g: float = Field(default=0, ge=0)
+	sec_80tta_ttb: float = Field(default=0, ge=0, le=50_000)
+	hra_exemption: float = Field(default=0, ge=0)
+	sec_24b_home_loan: float = Field(default=0, ge=0, le=200_000)
+	other_deductions: float = Field(default=0, ge=0)
+
+
+class DeductionsResponse(BaseModel):
+	workspace_id: int
+	deductions: DeductionsPayload
+	total_chapter_via: float
+	total_deductions_old: float
+	total_deductions_new: float
+	savings_breakdown: dict[str, Any]
+
+
+class TaxAnalysisResponse(BaseModel):
+	workspace_id: int
+	assessment_year: str
+	profile: dict[str, Any]
+	income_summary: dict[str, Any]
+	deductions_summary: dict[str, Any]
+	old_regime: dict[str, Any]
+	new_regime: dict[str, Any]
+	optimal_regime: str
+	tax_savings: float
+	breakeven_deduction: float
+	readiness_score: int
+	audit_checks: list[dict[str, Any]]
+	recommended_itr: str
+	document_count: int
+	has_reconciliation: bool
+

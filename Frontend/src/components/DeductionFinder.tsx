@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { Search, ChevronRight, Info } from "lucide-react";
+import { Search, ChevronRight, Info, Sparkles } from "lucide-react";
 
 interface Deduction {
   id: string;
@@ -16,58 +16,58 @@ const DEDUCTIONS: Deduction[] = [
   {
     id: "80c",
     name: "Section 80C",
-    description: "The most popular deduction for tax-saving investments and expenses.",
-    maxLimit: "Rs 1,50,000",
+    description: "The primary tax deduction for individuals covering investments and statutory savings.",
+    maxLimit: "₹1,50,000",
     eligibleInvestments: ["ELSS Mutual Funds", "PPF", "EPF", "LIC Premiums", "Home Loan Principal", "Tuition Fees"],
   },
   {
     id: "80d",
     name: "Section 80D",
-    description: "Deduction for medical insurance premiums paid for self and family.",
-    maxLimit: "Rs 25,000 - Rs 1,00,000",
-    eligibleInvestments: ["Health Insurance Premium", "Preventive Health Checkup"],
+    description: "Deduction for medical insurance premiums paid for self, spouse, children, and senior parents.",
+    maxLimit: "₹25,000 - ₹1,00,000",
+    eligibleInvestments: ["Health Insurance Premium", "Preventive Health Checkup (₹5,000)", "Senior Citizen Medical"],
   },
   {
     id: "hra",
-    name: "HRA Exemption",
-    description: "House Rent Allowance exemption for salaried individuals living in rented houses.",
-    maxLimit: "Based on salary & rent",
-    eligibleInvestments: ["Actual Rent Paid", "Rent Agreement", "Rent Receipts"],
+    name: "HRA Exemption (Sec 10(13A))",
+    description: "House Rent Allowance exemption for salaried individuals living in rented accommodations.",
+    maxLimit: "Least of Actual HRA, 50%/40% Salary, or Rent - 10% Salary",
+    eligibleInvestments: ["Actual Rent Paid", "Rent Agreement", "Rent Receipts (PAN if rent > ₹1L/yr)"],
   },
   {
     id: "80ccd1b",
     name: "Section 80CCD(1B)",
-    description: "Additional deduction for contribution to National Pension Scheme (NPS).",
-    maxLimit: "Rs 50,000",
-    eligibleInvestments: ["NPS Tier-I Account"],
+    description: "Exclusive additional deduction for contribution to National Pension Scheme (NPS).",
+    maxLimit: "₹50,000 (Over & above 80C)",
+    eligibleInvestments: ["NPS Tier-I Account", "Atal Pension Yojana"],
   },
   {
     id: "24b",
     name: "Section 24(b)",
-    description: "Deduction on the interest paid for a home loan.",
-    maxLimit: "Rs 2,00,000",
-    eligibleInvestments: ["Home Loan Interest Portion"],
+    description: "Deduction on the interest paid for home loan of self-occupied residential property.",
+    maxLimit: "₹2,00,000",
+    eligibleInvestments: ["Home Loan Interest Certificate from Bank"],
   },
   {
     id: "80e",
     name: "Section 80E",
-    description: "Deduction on the interest paid on an education loan.",
-    maxLimit: "No upper limit",
-    eligibleInvestments: ["Education Loan Interest"],
+    description: "Deduction on the interest paid for higher education loans (no upper limit for 8 consecutive years).",
+    maxLimit: "100% of Interest Paid",
+    eligibleInvestments: ["Higher Education Loan Interest Certificate"],
   },
   {
     id: "80tta",
-    name: "Section 80TTA",
-    description: "Deduction on interest income from savings accounts.",
-    maxLimit: "Rs 10,000",
-    eligibleInvestments: ["Savings Account Interest"],
+    name: "Section 80TTA / 80TTB",
+    description: "Deduction on interest earned from savings bank accounts (80TTB ₹50k for senior citizens).",
+    maxLimit: "₹10,000 (₹50,000 for Seniors)",
+    eligibleInvestments: ["Savings Bank Account Interest", "Co-operative Bank Interest"],
   },
   {
     id: "80g",
     name: "Section 80G",
-    description: "Deduction for donations made to charitable funds and relief funds.",
-    maxLimit: "50% or 100% of donation",
-    eligibleInvestments: ["Approved Charitable Institutions", "Relief Funds"],
+    description: "Deduction for donations made to PMNRF, NDRF, and approved charitable institutions.",
+    maxLimit: "50% or 100% with Qualifying Limit",
+    eligibleInvestments: ["Approved 80G Receipts with 10BE Certificate"],
   },
 ];
 
@@ -76,7 +76,7 @@ const containerVariants: Variants = {
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
+      staggerChildren: 0.08,
     },
   },
 };
@@ -84,8 +84,8 @@ const containerVariants: Variants = {
 const itemVariants: Variants = {
   hidden: {
     opacity: 0,
-    scale: 0.8,
-    y: 20,
+    scale: 0.9,
+    y: 15,
   },
   show: {
     opacity: 1,
@@ -99,9 +99,9 @@ const itemVariants: Variants = {
   },
   exit: {
     opacity: 0,
-    scale: 0.8,
+    scale: 0.9,
     transition: {
-      duration: 0.2,
+      duration: 0.15,
     },
   },
 };
@@ -119,51 +119,58 @@ function DeductionCard({ deduction }: { deduction: Deduction }) {
       className="mb-6 break-inside-avoid perspective-1000"
     >
       <div
-        className={`grid w-full h-full min-h-[220px] rounded-2xl transition-all duration-500 preserve-3d cursor-pointer ${
+        className={`grid w-full h-full min-h-[220px] rounded-3xl transition-all duration-500 preserve-3d cursor-pointer ${
           isFlipped ? "[transform:rotateY(180deg)]" : ""
         } group`}
         onClick={() => setIsFlipped(!isFlipped)}
       >
         {/* Front Side */}
         <div className="[grid-area:1/1] backface-hidden w-full h-full">
-          <div className="h-full w-full p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm transition-all duration-300 ease-out group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] dark:group-hover:shadow-[0_20px_40px_-15px_rgba(var(--primary),0.2)] flex flex-col justify-between">
+          <div className="h-full w-full p-6 bg-card border border-border rounded-3xl shadow-xs transition-all duration-300 ease-out group-hover:-translate-y-1 group-hover:shadow-lg group-hover:border-primary/50 flex flex-col justify-between">
             <div>
-              <div className="flex items-start justify-between mb-4">
-                <h3 className="text-2xl font-black text-black dark:text-white tracking-tight">{deduction.name}</h3>
-                <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded-full">
-                  <Info size={18} className="text-gray-400 dark:text-gray-500" />
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="text-xl font-black text-foreground tracking-tight">{deduction.name}</h3>
+                <div className="p-2 bg-muted rounded-full">
+                  <Info size={16} className="text-muted-foreground" />
                 </div>
               </div>
-              <p className="text-gray-600 dark:text-gray-400 font-medium leading-relaxed">
+              <p className="text-muted-foreground text-xs leading-relaxed font-medium">
                 {deduction.description}
               </p>
             </div>
             
-            <div className="mt-6 flex items-center justify-between text-primary font-semibold text-sm">
-              <span>Tap to flip</span>
-              <ChevronRight size={16} />
+            <div className="mt-5 flex items-center justify-between text-primary font-bold text-xs pt-3 border-t border-border/40">
+              <span>Click to view statutory limits</span>
+              <ChevronRight size={14} className="transition-transform group-hover:translate-x-1" />
             </div>
           </div>
         </div>
 
         {/* Back Side */}
         <div className="[grid-area:1/1] backface-hidden w-full h-full [transform:rotateY(180deg)]">
-           <div className="h-full w-full p-6 bg-primary dark:bg-primary/10 border border-primary/20 rounded-2xl shadow-sm transition-all duration-300 ease-out group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_-15px_rgba(var(--primary),0.3)] flex flex-col text-white dark:text-foreground">
-             <div className="mb-4">
-               <h4 className="text-sm font-bold text-white/80 dark:text-primary uppercase tracking-wider mb-1">Max Limit</h4>
-               <p className="text-xl font-black">{deduction.maxLimit}</p>
+           <div className="h-full w-full p-6 bg-foreground text-background border border-border rounded-3xl shadow-lg flex flex-col justify-between">
+             <div>
+               <div className="mb-3 pb-2 border-b border-background/20">
+                 <h4 className="text-[11px] font-black uppercase tracking-wider opacity-70 mb-0.5">Statutory Max Limit</h4>
+                 <p className="text-xl font-black">{deduction.maxLimit}</p>
+               </div>
+               
+               <div>
+                 <h4 className="text-[11px] font-black uppercase tracking-wider opacity-70 mb-2">Eligible Investments</h4>
+                 <ul className="space-y-1">
+                   {deduction.eligibleInvestments.map((inv, idx) => (
+                     <li key={idx} className="flex items-center gap-2 text-xs font-bold">
+                       <span className="size-1.5 bg-background rounded-full shrink-0"></span>
+                       <span className="opacity-90">{inv}</span>
+                     </li>
+                   ))}
+                 </ul>
+               </div>
              </div>
-             
-             <div className="flex-1">
-               <h4 className="text-sm font-bold text-white/80 dark:text-primary uppercase tracking-wider mb-2">Eligible Investments</h4>
-               <ul className="space-y-1.5">
-                 {deduction.eligibleInvestments.map((inv, idx) => (
-                   <li key={idx} className="flex items-center gap-2 text-sm font-medium">
-                     <span className="w-1.5 h-1.5 bg-white dark:bg-primary rounded-full shrink-0"></span>
-                     <span className="opacity-90">{inv}</span>
-                   </li>
-                 ))}
-               </ul>
+
+             <div className="mt-4 pt-2 border-t border-background/20 text-[11px] font-bold opacity-75 flex items-center justify-between">
+               <span>Click to flip back</span>
+               <ChevronRight size={12} />
              </div>
            </div>
         </div>
@@ -184,28 +191,32 @@ export function DeductionFinder() {
   }, [searchTerm]);
 
   return (
-    <section id="deductions" className="py-24 px-6 lg:px-12 relative z-10 bg-white dark:bg-transparent overflow-hidden">
+    <section id="deductions" className="py-24 px-6 lg:px-12 relative z-10 bg-card/40 border-b border-border/40 overflow-hidden">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="max-w-2xl">
-            <h2 className="text-5xl font-black mb-4 leading-tight text-black dark:text-white">
-              Deduction <span className="text-primary">Finder</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-wider mb-4">
+              <Sparkles size={13} />
+              <span>Chapter VI-A Explorer</span>
+            </div>
+            <h2 className="text-4xl lg:text-5xl font-black mb-3 leading-tight text-foreground tracking-tight">
+              Tax Deduction <span className="text-primary">Finder</span>
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400 font-medium">
-              Discover all tax-saving opportunities. Flip a card to see the max limit and where to invest.
+            <p className="text-sm md:text-base text-muted-foreground font-medium">
+              Explore eligible exemptions under Section 80C, 80D, HRA, 80CCD, and Section 24(b). Flip any card for statutory limits.
             </p>
           </div>
           
           <div className="relative w-full md:w-96">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search className="text-gray-400" size={20} />
+              <Search className="text-muted-foreground" size={18} />
             </div>
             <input
               type="text"
-              placeholder="Search sections or investments..."
+              placeholder="Search sections (80C, 80D, HRA, NPS)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-black dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium"
+              className="w-full pl-11 pr-4 py-3 bg-card border border-border rounded-full text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-all text-xs font-bold shadow-xs"
             />
           </div>
         </div>
@@ -224,8 +235,8 @@ export function DeductionFinder() {
         </motion.div>
         
         {filteredDeductions.length === 0 && (
-          <div className="py-12 text-center text-gray-500 font-medium">
-            No deductions found matching &quot;{searchTerm}&quot;. Try a different term.
+          <div className="py-16 text-center text-muted-foreground font-bold text-sm bg-card rounded-3xl border border-border">
+            No deductions found matching &quot;{searchTerm}&quot;. Try searching for 80C, 80D, HRA, or NPS.
           </div>
         )}
       </div>

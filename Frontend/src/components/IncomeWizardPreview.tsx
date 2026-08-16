@@ -24,10 +24,10 @@ export function IncomeWizardPreview() {
             One flow for every source of income.
           </h2>
           <p className="mt-4 max-w-xl text-lg font-medium text-gray-600 dark:text-gray-400">
-            The wizard replaces scattered ITR quizzes by capturing the actual income mix and saving the recommended ITR form to your filing workspace.
+            Intake replaces scattered forms by capturing the actual income mix and saving the recommended ITR form to your return.
           </p>
-          <Link href="/income" className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-md transition hover:bg-primary/90">
-            Start income wizard
+          <Link href="/intake?section=income" className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-md transition hover:bg-primary/90">
+            Start Intake
             <ArrowRight size={16} />
           </Link>
         </div>

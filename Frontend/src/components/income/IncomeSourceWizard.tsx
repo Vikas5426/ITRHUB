@@ -291,7 +291,7 @@ function IncomeSourceWizardInner() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-7xl px-5 pb-16 pt-28 lg:px-8">
+    <section className="w-full p-6 lg:p-8">
       <header className="mb-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">Income-source wizard</p>
@@ -308,7 +308,7 @@ function IncomeSourceWizardInner() {
               <p className="text-2xl font-black">{currency(localTotal)}</p>
             </div>
           </div>
-          <p className="mt-3 text-sm text-muted-foreground">This total updates locally as you fill the wizard. Save to update your workspace.</p>
+          <p className="mt-3 text-sm text-muted-foreground">This total updates locally as you fill Intake. Save to update your return.</p>
         </div>
       </header>
 
@@ -321,15 +321,15 @@ function IncomeSourceWizardInner() {
 
       {filings.length === 0 ? (
         <div className="minimal-card p-10 text-center">
-          <h2 className="text-2xl font-black">Create a filing workspace first</h2>
-          <p className="mx-auto mt-2 max-w-xl text-muted-foreground">Income sources are saved per assessment year, so start from your taxpayer workspace.</p>
-          <Link href="/workspace" className="mt-6 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">Open workspace</Link>
+          <h2 className="text-2xl font-black">Create a return first</h2>
+          <p className="mx-auto mt-2 max-w-xl text-muted-foreground">Income sources are saved per assessment year. Use the return setup at the top of Intake.</p>
+          <Link href="/intake" className="mt-6 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">Back to Intake setup</Link>
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
           <aside className="space-y-4">
             <div className="minimal-card p-4">
-              <h2 className="mb-4 px-2 font-black">Filing workspace</h2>
+              <h2 className="mb-4 px-2 font-black">Return</h2>
               <div className="space-y-2">
                 {filings.map((filing) => {
                   const profile = profiles.find((item) => item.id === filing.profile_id);
@@ -440,7 +440,7 @@ function IncomeSourceWizardInner() {
                   <NumberField label="Property gains" value={income.capital_gains.property_gains} onChange={(value) => update("capital_gains", "property_gains", value)} />
                   <NumberField label="Crypto/VDA gains" value={income.capital_gains.crypto_vda_gains} onChange={(value) => update("capital_gains", "crypto_vda_gains", value)} />
                   <CheckField label="Has capital loss carry-forward" checked={income.capital_gains.has_loss_carry_forward} onChange={(value) => update("capital_gains", "has_loss_carry_forward", value)} />
-                  <Link href="/portfolio" className="text-sm font-bold text-primary underline underline-offset-4">Use Portfolio Analyzer for detailed trade-level gains</Link>
+                  <Link href="/intake?section=investments" className="text-sm font-bold text-primary underline underline-offset-4">Use investment intake for detailed trade-level gains</Link>
                 </WizardCard>
               )}
 
@@ -483,9 +483,9 @@ function IncomeSourceWizardInner() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
-              <NextStepCard href="/documents" title="Import documents" text="Reconcile Form 16, AIS/TIS, 26AS, and income certificates." />
-              <NextStepCard href="/portfolio" title="Analyze capital gains" text="Use broker/CAS files for detailed STCG/LTCG checks." />
-              <NextStepCard href="/workspace" title="Return to workspace" text="See progress, notes, and your recommended ITR form." />
+              <NextStepCard href="/intake?section=documents" title="Import documents" text="Upload Form 16, AIS/TIS, 26AS, and income certificates." />
+              <NextStepCard href="/analysis?section=investments" title="Analyze capital gains" text="Review broker/CAS files for detailed STCG/LTCG checks." />
+              <NextStepCard href="/analysis" title="Review analysis" text="See tax position, recommendations, and your recommended ITR form." />
             </div>
           </div>
         </div>
@@ -585,7 +585,7 @@ function ReviewPanel({ response, fallbackTotal }: { response: IncomeResponse | n
         <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Recommended ITR</p>
         <div className="mt-3 rounded-3xl bg-primary p-6 text-primary-foreground">
           <p className="text-6xl font-black">{response?.recommended_itr ?? "Save"}</p>
-          <p className="mt-3 text-sm opacity-75">Save the wizard to update your workspace form recommendation.</p>
+          <p className="mt-3 text-sm opacity-75">Save Intake to update your return form recommendation.</p>
         </div>
       </div>
       <div>
