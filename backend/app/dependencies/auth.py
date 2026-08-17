@@ -24,3 +24,19 @@ async def get_current_user(
 			detail="Authentication required",
 		)
 	return user
+
+
+async def get_optional_current_user(
+	request: Request,
+	db: AsyncSession = Depends(get_db),
+	authorization: str | None = Header(default=None),
+) -> User | None:
+	settings = get_settings()
+	token = request.cookies.get(settings.auth_cookie_name)
+	if authorization and authorization.lower().startswith("bearer "):
+		token = authorization[7:].strip()
+	user_id = decode_access_token(token) if token else None
+	user = await db.get(User, user_id) if user_id else None
+	if not user or not user.is_active:
+		return None
+	return user

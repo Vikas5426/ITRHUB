@@ -86,7 +86,7 @@ def calculate_tax(
     income: float,
     deductions: float = 0.0,
     regime: str = "new",
-    apply_standard_deduction: bool = True,
+    apply_standard_deduction: bool = False,
     standard_deduction_amount: float | None = None,
     special_tax_components: Optional[Dict[str, float]] = None,
 ) -> Dict[str, Any]:
@@ -138,7 +138,7 @@ def calculate_tax(
     tax_before_surcharge = round(slab_tax + special_tax_total, 2)
 
     # Surcharge
-    surcharge_rate = _get_surcharge_rate(taxable_income)
+    surcharge_rate = _get_surcharge_rate(income)
     surcharge_amount = round(tax_before_surcharge * surcharge_rate, 2) if surcharge_rate > 0 else 0.0
 
     tax_after_surcharge = round(tax_before_surcharge + surcharge_amount, 2)
@@ -169,9 +169,10 @@ def calculate_tax(
     }
 
 
-def compare_regimes(income: float, old_deductions: float = 0.0) -> Dict[str, Any]:
-    old = calculate_tax(income, old_deductions, regime="old", apply_standard_deduction=True)
-    new = calculate_tax(income, 0.0, regime="new", apply_standard_deduction=True)
+def compare_regimes(income: float, old_deductions: float = 0.0, **kwargs) -> Dict[str, Any]:
+    ded = old_deductions if old_deductions else kwargs.get("deductions", 0.0)
+    old = calculate_tax(income, ded, regime="old")
+    new = calculate_tax(income, 0.0, regime="new")
 
     diff = round(abs(old["tax_after_cess"] - new["tax_after_cess"]), 2)
     optimal = "new" if new["tax_after_cess"] <= old["tax_after_cess"] else "old"

@@ -37,6 +37,9 @@ class User(Base):
 	profiles: Mapped[list["TaxpayerProfile"]] = orm_relationship(
 		back_populates="owner", cascade="all, delete-orphan"
 	)
+	conversations: Mapped[list["AIConversation"]] = orm_relationship(
+		back_populates="user", cascade="all, delete-orphan"
+	)
 
 
 class TaxpayerProfile(Base):
@@ -110,3 +113,39 @@ class FilingDocument(Base):
 	uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
 
 	workspace: Mapped[FilingWorkspace] = orm_relationship(back_populates="documents")
+
+
+class AIConversation(Base):
+	__tablename__ = "ai_conversations"
+
+	id: Mapped[int] = mapped_column(Integer, primary_key=True)
+	user_id: Mapped[int] = mapped_column(
+		ForeignKey("users.id", ondelete="CASCADE"), index=True
+	)
+	title: Mapped[str] = mapped_column(String(200), default="Tax Consultation")
+	created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+	updated_at: Mapped[datetime] = mapped_column(
+		DateTime(timezone=True), default=utc_now, onupdate=utc_now
+	)
+
+	user: Mapped[User] = orm_relationship(back_populates="conversations")
+	messages: Mapped[list["AIMessageRecord"]] = orm_relationship(
+		back_populates="conversation",
+		cascade="all, delete-orphan",
+		order_by="AIMessageRecord.created_at",
+	)
+
+
+class AIMessageRecord(Base):
+	__tablename__ = "ai_messages"
+
+	id: Mapped[int] = mapped_column(Integer, primary_key=True)
+	conversation_id: Mapped[int] = mapped_column(
+		ForeignKey("ai_conversations.id", ondelete="CASCADE"), index=True
+	)
+	role: Mapped[str] = mapped_column(String(20))  # "user" or "assistant"
+	content: Mapped[str] = mapped_column(String)
+	sources: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
+	created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+	conversation: Mapped[AIConversation] = orm_relationship(back_populates="messages")

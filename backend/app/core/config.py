@@ -19,6 +19,14 @@ class Settings(BaseSettings):
 	max_document_bytes: int = 10 * 1024 * 1024
 	auto_create_tables: bool = True
 
+	# AI Assistant (Groq)
+	groq_api_key: str = ""
+	ai_model: str = "openai/gpt-oss-120b"
+	ai_temperature: float = 0.2
+	ai_max_tokens: int = 2048
+	ai_reasoning_effort: str = "medium"
+	ai_timeout: int = 30
+
 	model_config = SettingsConfigDict(
 		env_file=".env",
 		env_file_encoding="utf-8",
