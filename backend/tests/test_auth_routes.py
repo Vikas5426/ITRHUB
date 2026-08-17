@@ -378,3 +378,96 @@ def test_return_preparation_generates_schedules_validations_and_portal_json(clie
 	assert itr1_preview.status_code == 200
 	assert itr1_preview.json()["itr_form"] == "ITR-1"
 	assert any(issue["code"] == "ITRHUB-002" for issue in itr1_preview.json()["validations"])
+
+
+def test_profile_update_and_synchronization(client: TestClient):
+	register(client, email="profiletest@example.com")
+	
+	# Update personal and tax information
+	update_res = client.put(
+		"/api/auth/profile",
+		json={
+			"full_name": "Vikas Sharma Updated",
+			"phone_number": "+919876543210",
+			"occupation": "Principal Tax Architect",
+			"city": "Bengaluru",
+			"state": "Karnataka",
+			"pincode": "560001",
+			"pan": "ABCDE1234F",
+			"aadhaar_last_four": "9999",
+			"residency_status": "resident",
+		},
+	)
+	assert update_res.status_code == 200
+	data = update_res.json()
+	assert data["full_name"] == "Vikas Sharma Updated"
+	assert data["phone_number"] == "+919876543210"
+	assert data["occupation"] == "Principal Tax Architect"
+	assert data["city"] == "Bengaluru"
+	assert data["pan_masked"] == "ABXXXXX34F"
+	assert data["aadhaar_masked"] == "XXXX-XXXX-9999"
+
+	# Verify /api/auth/me returns the updated profile
+	me_res = client.get("/api/auth/me")
+	assert me_res.status_code == 200
+	assert me_res.json()["full_name"] == "Vikas Sharma Updated"
+	assert me_res.json()["pan_masked"] == "ABXXXXX34F"
+
+
+def test_change_password_flow(client: TestClient):
+	register(client, email="passchange@example.com")
+
+	# Wrong current password fails
+	bad_req = client.post(
+		"/api/auth/change-password",
+		json={"current_password": "WrongPassword123", "new_password": "NewStrongPass999"},
+	)
+	assert bad_req.status_code == 400
+
+	# Successful password change
+	change_req = client.post(
+		"/api/auth/change-password",
+		json={"current_password": "StrongPass123", "new_password": "NewStrongPass999"},
+	)
+	assert change_req.status_code == 200
+
+	# Can now log in with new password
+	client.post("/api/auth/logout")
+	login_new = client.post(
+		"/api/auth/login",
+		json={"email": "passchange@example.com", "password": "NewStrongPass999"},
+	)
+	assert login_new.status_code == 200
+
+
+def test_account_deletion_flow(client: TestClient):
+	register(client, email="deletetest@example.com")
+
+	# Wrong password fails
+	fail_del = client.post(
+		"/api/auth/delete-account",
+		json={"password": "WrongPassword", "confirmation_text": "DELETE"},
+	)
+	assert fail_del.status_code == 400
+
+	# Wrong confirmation text fails
+	fail_text = client.post(
+		"/api/auth/delete-account",
+		json={"password": "StrongPass123", "confirmation_text": "NO"},
+	)
+	assert fail_text.status_code == 400
+
+	# Successful deletion
+	del_res = client.post(
+		"/api/auth/delete-account",
+		json={"password": "StrongPass123", "confirmation_text": "DELETE"},
+	)
+	assert del_res.status_code == 200
+
+	# Cannot log in anymore
+	login_after = client.post(
+		"/api/auth/login",
+		json={"email": "deletetest@example.com", "password": "StrongPass123"},
+	)
+	assert login_after.status_code == 401
+

@@ -15,6 +15,20 @@ export type AuthUser = {
   id: number;
   email: string;
   full_name: string;
+  phone_number?: string | null;
+  avatar_url?: string | null;
+  bio?: string | null;
+  occupation?: string | null;
+  address_line?: string | null;
+  city?: string | null;
+  state?: string | null;
+  pincode?: string | null;
+  gender?: string | null;
+  date_of_birth?: string | null;
+  pan_masked?: string | null;
+  aadhaar_masked?: string | null;
+  residency_status?: string | null;
+  entity_type?: string | null;
   created_at: string;
 };
 
@@ -22,6 +36,7 @@ type AuthContextValue = {
   user: AuthUser | null;
   loading: boolean;
   refresh: () => Promise<void>;
+  updateProfile: (payload: Record<string, unknown>) => Promise<AuthUser>;
   logout: () => Promise<void>;
 };
 
@@ -39,6 +54,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  const updateProfile = useCallback(async (payload: Record<string, unknown>) => {
+    const updated = await apiRequest<AuthUser>("/api/auth/profile", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+    setUser(updated);
+    return updated;
   }, []);
 
   useEffect(() => {
@@ -64,8 +88,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, refresh, logout }),
-    [user, loading, refresh, logout],
+    () => ({ user, loading, refresh, updateProfile, logout }),
+    [user, loading, refresh, updateProfile, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

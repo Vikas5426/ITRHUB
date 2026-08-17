@@ -4,8 +4,10 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.security import decrypt_document
 from app.models.user import FilingDocument, FilingWorkspace, TaxpayerProfile, User
 from app.services import tax_engine
+from app.services.document_import_service import extract_pdf_text, parse_document
 
 logger = logging.getLogger(__name__)
 
@@ -149,6 +151,50 @@ AI_TOOLS_DEFINITIONS: List[Dict[str, Any]] = [
 	{
 		"type": "function",
 		"function": {
+			"name": "get_tax_summary",
+			"description": "Retrieve an aggregated financial & tax summary for the user's active return, including gross total income, total deductions, taxable income, computed tax under both regimes, TDS paid, and net refund or payable.",
+			"parameters": {
+				"type": "object",
+				"properties": {},
+			},
+		},
+	},
+	{
+		"type": "function",
+		"function": {
+			"name": "get_user_capital_gains",
+			"description": "Retrieve the user's capital gains breakdown (STCG 20% under Sec 111A, LTCG 12.5% under Sec 112A, property gains, crypto/VDA gains, and loss carry-forward).",
+			"parameters": {
+				"type": "object",
+				"properties": {},
+			},
+		},
+	},
+	{
+		"type": "function",
+		"function": {
+			"name": "query_user_documents",
+			"description": "Search and extract relevant text, numbers, or facts from the authenticated user's uploaded evidence documents (Form 16, AIS, 26AS, bank statements, etc.).",
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"query": {
+						"type": "string",
+						"description": "Keywords or specific question about the document (e.g. 'TDS', 'gross salary', 'dividend', 'employer name')",
+					},
+					"document_type": {
+						"type": "string",
+						"description": "Optional category filter (e.g. 'form_16', 'ais_tis', 'form_26as', 'bank_interest', 'all')",
+						"default": "all",
+					},
+				},
+				"required": ["query"],
+			},
+		},
+	},
+	{
+		"type": "function",
+		"function": {
 			"name": "recommend_itr_form",
 			"description": "Determine the mandatory/recommended Indian ITR form (ITR-1 Sahaj, ITR-2, ITR-3, ITR-4 Sugam) based on income sources and asset profile.",
 			"parameters": {
@@ -186,6 +232,12 @@ class AIToolExecutor:
 				return await self._get_filing_status()
 			elif tool_name == "get_uploaded_documents_info":
 				return await self._get_uploaded_documents_info()
+			elif tool_name == "get_tax_summary":
+				return await self._get_tax_summary()
+			elif tool_name == "get_user_capital_gains":
+				return await self._get_user_capital_gains()
+			elif tool_name == "query_user_documents":
+				return await self._query_user_documents(arguments)
 			elif tool_name == "calculate_tax_breakdown":
 				return self._calculate_tax_breakdown(arguments)
 			elif tool_name == "compare_tax_regimes":
@@ -323,3 +375,160 @@ class AIToolExecutor:
 			is_presumptive=bool(args.get("is_presumptive", False)),
 		)
 		return {"recommended_itr": itr}
+
+	async def _get_tax_summary(self) -> Dict[str, Any]:
+		workspace = await self._get_active_workspace()
+		if not workspace or not workspace.progress_data:
+			return {"status": "no_workspace_data", "message": "No active return workspace found."}
+
+		income_sources = workspace.progress_data.get("income_sources", {})
+		deductions = workspace.progress_data.get("deductions", {})
+
+		salary = float(income_sources.get("salary", {}).get("gross_salary", 0)) if income_sources.get("salary", {}).get("enabled") else 0.0
+		tds = float(income_sources.get("salary", {}).get("tds", 0)) if income_sources.get("salary", {}).get("enabled") else 0.0
+		house = max(0.0, float(income_sources.get("house_property", {}).get("rental_income", 0)) - float(income_sources.get("house_property", {}).get("home_loan_interest", 0))) if income_sources.get("house_property", {}).get("enabled") else 0.0
+		business = float(income_sources.get("business", {}).get("net_profit", 0)) if income_sources.get("business", {}).get("enabled") else 0.0
+		cg = income_sources.get("capital_gains", {})
+		capital_gains = (float(cg.get("listed_equity_stcg", 0)) + float(cg.get("listed_equity_ltcg", 0)) + float(cg.get("property_gains", 0)) + float(cg.get("crypto_vda_gains", 0))) if cg.get("enabled") else 0.0
+		other = float(income_sources.get("other", {}).get("interest_income", 0)) + float(income_sources.get("other", {}).get("dividend_income", 0)) + float(income_sources.get("other", {}).get("other_income", 0))
+
+		gti = salary + house + business + capital_gains + other
+
+		sec_80c = min(150000.0, float(deductions.get("sec_80c", 0)))
+		sec_80d = float(deductions.get("sec_80d_self", 0)) + float(deductions.get("sec_80d_parents", 0))
+		sec_80ccd = min(50000.0, float(deductions.get("sec_80ccd_1b", 0)))
+		hra = float(deductions.get("hra_exemption", 0))
+		sec_24b = min(200000.0, float(deductions.get("sec_24b_home_loan", 0)))
+
+		total_old_deductions = sec_80c + sec_80d + sec_80ccd + hra + sec_24b
+
+		old_calc = tax_engine.calculate_tax(gti, total_old_deductions, "old", apply_standard_deduction=True)
+		new_calc = tax_engine.calculate_tax(gti, 0.0, "new", apply_standard_deduction=True)
+
+		new_tax = new_calc.get("tax_after_cess", 0.0)
+		old_tax = old_calc.get("tax_after_cess", 0.0)
+
+		recommended_regime = "new" if new_tax <= old_tax else "old"
+		chosen_tax = min(new_tax, old_tax)
+
+		refund_due = max(0.0, tds - chosen_tax)
+		balance_payable = max(0.0, chosen_tax - tds)
+
+		return {
+			"gross_total_income": gti,
+			"breakdown": {
+				"salary": salary,
+				"house_property": house,
+				"business": business,
+				"capital_gains": capital_gains,
+				"other_income": other,
+			},
+			"deductions_claimed": {
+				"section_80c": sec_80c,
+				"section_80d": sec_80d,
+				"section_80ccd_1b": sec_80ccd,
+				"hra_exemption": hra,
+				"section_24b": sec_24b,
+				"total_old_deductions": total_old_deductions,
+			},
+			"tds_deposited": tds,
+			"new_regime_tax": new_tax,
+			"old_regime_tax": old_tax,
+			"cheaper_regime": recommended_regime,
+			"tax_savings_under_cheaper": abs(new_tax - old_tax),
+			"estimated_refund": refund_due,
+			"estimated_balance_due": balance_payable,
+		}
+
+	async def _get_user_capital_gains(self) -> Dict[str, Any]:
+		workspace = await self._get_active_workspace()
+		if not workspace or not workspace.progress_data:
+			return {"status": "no_capital_gains_data", "message": "No capital gains recorded yet in the return workspace."}
+
+		cg = workspace.progress_data.get("income_sources", {}).get("capital_gains", {})
+		return {
+			"enabled": cg.get("enabled", False),
+			"listed_equity_stcg_sec111a": float(cg.get("listed_equity_stcg", 0)),
+			"listed_equity_ltcg_sec112a": float(cg.get("listed_equity_ltcg", 0)),
+			"property_gains": float(cg.get("property_gains", 0)),
+			"crypto_vda_gains": float(cg.get("crypto_vda_gains", 0)),
+			"has_loss_carry_forward": bool(cg.get("has_loss_carry_forward", False)),
+			"applicable_rates": {
+				"stcg_equity": "20% under Section 111A",
+				"ltcg_equity": "12.5% under Section 112A (with ₹1.25L exemption threshold)",
+				"crypto_vda": "30% under Section 115BBH (no loss offset)",
+			},
+		}
+
+	async def _query_user_documents(self, args: Dict[str, Any]) -> Dict[str, Any]:
+		query = str(args.get("query", "")).strip().lower()
+		doc_type = str(args.get("document_type", "all")).lower()
+
+		query_stmt = (
+			select(FilingDocument)
+			.join(FilingWorkspace)
+			.join(TaxpayerProfile)
+			.where(TaxpayerProfile.owner_id == self.user_id)
+		)
+		if doc_type != "all":
+			query_stmt = query_stmt.where(FilingDocument.category == doc_type)
+		query_stmt = query_stmt.order_by(FilingDocument.uploaded_at.desc())
+
+		docs = list(await self.db.scalars(query_stmt))
+		if not docs:
+			return {
+				"status": "no_documents_found",
+				"message": f"No uploaded documents found for user in category '{doc_type}'.",
+				"matches": [],
+			}
+
+		matches = []
+		keywords = [k for k in query.split() if len(k) > 2]
+
+		for doc in docs:
+			try:
+				parsed = parse_document(doc)
+				items = parsed.get("items", [])
+				matching_items = []
+				for item in items:
+					desc = str(item.get("description", "")).lower()
+					cat = str(item.get("category", "")).lower()
+					if any(kw in desc or kw in cat for kw in keywords) or query in desc or query in cat:
+						matching_items.append(item)
+					elif not keywords:
+						matching_items.append(item)
+
+				raw_excerpt = ""
+				try:
+					decrypted = decrypt_document(doc.encrypted_content)
+					if doc.content_type == "application/pdf" or doc.original_name.lower().endswith(".pdf"):
+						raw_text = extract_pdf_text(decrypted)
+						for line in raw_text.splitlines():
+							if any(kw in line.lower() for kw in keywords):
+								raw_excerpt += line.strip() + "\n"
+				except Exception:
+					pass
+
+				if matching_items or raw_excerpt:
+					matches.append({
+						"document_name": doc.original_name,
+						"category": doc.category,
+						"uploaded_at": str(doc.uploaded_at),
+						"structured_facts": matching_items[:10],
+						"text_excerpts": raw_excerpt[:800],
+					})
+			except Exception as err:
+				logger.warning(f"Error reading document {doc.id} in query_user_documents: {err}")
+
+		if not matches:
+			return {
+				"status": "no_matching_facts",
+				"message": f"Searched {len(docs)} uploaded document(s) ({', '.join(d.original_name for d in docs)}), but found no specific details matching '{query}'.",
+				"documents_searched": [d.original_name for d in docs],
+			}
+
+		return {
+			"status": "success",
+			"document_count_searched": len(docs),
+			"matches": matches,
+		}

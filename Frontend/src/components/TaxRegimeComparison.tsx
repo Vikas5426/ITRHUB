@@ -28,24 +28,29 @@ const incomePresets = [
 
 export function TaxRegimeComparison() {
   const { taxAnalysis, deductions } = useTaxWorkspace();
-  const [grossIncome, setGrossIncome] = useState<number>(1200000);
-  const [sec80C, setSec80C] = useState<number>(150000);
-  const [sec80D, setSec80D] = useState<number>(25000);
-  const [secHraHomeLoan, setSecHraHomeLoan] = useState<number>(25000);
+  const [grossIncome, setGrossIncome] = useState<number>(
+    taxAnalysis?.income_summary?.gross_total_income ?? 1200000
+  );
+  const [sec80C, setSec80C] = useState<number>(deductions?.sec_80c ?? 0);
+  const [sec80D, setSec80D] = useState<number>(
+    (deductions?.sec_80d_self ?? 0) + (deductions?.sec_80d_parents ?? 0)
+  );
+  const [secHraHomeLoan, setSecHraHomeLoan] = useState<number>(
+    (deductions?.hra_exemption ?? 0) + (deductions?.sec_24b_home_loan ?? 0)
+  );
   const [isAdvancedDeductions, setIsAdvancedDeductions] = useState<boolean>(false);
 
   useEffect(() => {
-    if (taxAnalysis?.income_summary?.gross_total_income) {
-      const gti = Number(taxAnalysis.income_summary.gross_total_income);
-      if (gti > 0) setGrossIncome(gti);
+    if (taxAnalysis?.income_summary?.gross_total_income !== undefined) {
+      setGrossIncome(Number(taxAnalysis.income_summary.gross_total_income) || 0);
     }
   }, [taxAnalysis]);
 
   useEffect(() => {
     if (deductions) {
-      setSec80C(deductions.sec_80c || 150000);
-      setSec80D((deductions.sec_80d_self || 0) + (deductions.sec_80d_parents || 0) || 25000);
-      setSecHraHomeLoan((deductions.hra_exemption || 0) + (deductions.sec_24b_home_loan || 0) || 25000);
+      setSec80C(deductions.sec_80c ?? 0);
+      setSec80D((deductions.sec_80d_self ?? 0) + (deductions.sec_80d_parents ?? 0));
+      setSecHraHomeLoan((deductions.hra_exemption ?? 0) + (deductions.sec_24b_home_loan ?? 0));
     }
   }, [deductions]);
 

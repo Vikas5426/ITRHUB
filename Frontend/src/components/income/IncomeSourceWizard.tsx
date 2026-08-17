@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
   BriefcaseBusiness,
@@ -18,20 +18,7 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "@/components/AuthProvider";
-import { apiRequest } from "@/lib/api";
-
-type Profile = {
-  id: number;
-  display_name: string;
-};
-
-type Filing = {
-  id: number;
-  profile_id: number;
-  assessment_year_start: number;
-  itr_form: string | null;
-  progress_data: Record<string, unknown>;
-};
+import { useTaxWorkspace } from "@/context/TaxWorkspaceContext";
 
 type IncomePayload = {
   salary: {
@@ -79,15 +66,7 @@ type IncomePayload = {
     other_income: number;
     exempt_income: number;
   };
-  taxpayer_notes: string;
-};
-
-type IncomeResponse = {
-  workspace_id: number;
-  income_sources: IncomePayload;
-  summary: Record<string, number | string[]>;
-  recommended_itr: string;
-  warnings: string[];
+  taxpayer_notes?: string;
 };
 
 const emptyIncome: IncomePayload = {
@@ -171,76 +150,48 @@ function labelFor(key: string) {
 
 function IncomeSourceWizardInner() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [filings, setFilings] = useState<Filing[]>([]);
-  const [activeFilingId, setActiveFilingId] = useState<number | null>(null);
+  const {
+    profiles,
+    activeProfile,
+    filings,
+    activeFiling,
+    incomeSources,
+    taxAnalysis,
+    saveIncomeSources,
+    selectFiling,
+  } = useTaxWorkspace();
+
   const [activeStep, setActiveStep] = useState("salary");
   const [income, setIncome] = useState<IncomePayload>(emptyIncome);
-  const [summary, setSummary] = useState<IncomeResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  const activeFiling = filings.find((filing) => filing.id === activeFilingId);
-  const activeProfile = profiles.find((profile) => profile.id === activeFiling?.profile_id);
-
-  const loadIncome = useCallback(async (filingId: number) => {
-    const response = await apiRequest<IncomeResponse>(`/api/workspace/filings/${filingId}/income-sources`);
-    setIncome(response.income_sources);
-    setSummary(response);
-  }, []);
-
-  const loadBase = useCallback(async () => {
-    try {
-      const [profileData, filingData] = await Promise.all([
-        apiRequest<Profile[]>("/api/workspace/profiles"),
-        apiRequest<Filing[]>("/api/workspace/filings"),
-      ]);
-      setProfiles(profileData);
-      setFilings(filingData);
-      const requested = Number(searchParams.get("filing"));
-      const selected = filingData.find((filing) => filing.id === requested) ?? filingData[0];
-      setActiveFilingId(selected?.id ?? null);
-      if (selected) await loadIncome(selected.id);
-    } catch (caught) {
-      if (caught instanceof Error && caught.message === "Authentication required") {
-        router.replace("/auth?mode=login");
-      } else {
-        setError(caught instanceof Error ? caught.message : "Unable to load income wizard");
-      }
+  useEffect(() => {
+    if (incomeSources) {
+      setIncome(incomeSources as IncomePayload);
     }
-  }, [loadIncome, router, searchParams]);
+  }, [incomeSources]);
 
   useEffect(() => {
     if (!authLoading && !user) {
       router.replace("/auth?mode=login");
-      return;
     }
-    if (user) {
-      const timer = window.setTimeout(() => void loadBase(), 0);
-      return () => window.clearTimeout(timer);
-    }
-  }, [authLoading, user, router, loadBase]);
+  }, [authLoading, user, router]);
 
-  async function selectFiling(filingId: number) {
-    setActiveFilingId(filingId);
+  async function handleSelectFiling(filingId: number) {
     setError("");
-    await loadIncome(filingId);
+    await selectFiling(filingId);
   }
 
   async function saveIncome() {
-    if (!activeFilingId) return;
+    if (!activeFiling) return;
     setBusy(true);
     setError("");
     try {
-      const response = await apiRequest<IncomeResponse>(
-        `/api/workspace/filings/${activeFilingId}/income-sources`,
-        { method: "PUT", body: JSON.stringify(income) },
-      );
-      setSummary(response);
-      setMessage(`Saved income sources. Recommended form: ${response.recommended_itr}.`);
+      await saveIncomeSources(income as any);
+      setMessage("Saved income sources. Synced across Analysis & Track.");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to save income sources");
     } finally {
@@ -336,11 +287,11 @@ function IncomeSourceWizardInner() {
                   return (
                     <button
                       key={filing.id}
-                      onClick={() => void selectFiling(filing.id)}
-                      className={`w-full rounded-2xl border p-4 text-left transition ${activeFilingId === filing.id ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-muted"}`}
+                      onClick={() => void handleSelectFiling(filing.id)}
+                      className={`w-full rounded-2xl border p-4 text-left transition ${activeFiling?.id === filing.id ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-muted"}`}
                     >
                       <p className="font-black">{ayLabel(filing.assessment_year_start)}</p>
-                      <p className={`mt-1 text-xs ${activeFilingId === filing.id ? "opacity-70" : "text-muted-foreground"}`}>
+                      <p className={`mt-1 text-xs ${activeFiling?.id === filing.id ? "opacity-70" : "text-muted-foreground"}`}>
                         {profile?.display_name ?? "Taxpayer"} - {filing.itr_form ?? "Form pending"}
                       </p>
                     </button>
@@ -478,7 +429,7 @@ function IncomeSourceWizardInner() {
               )}
 
               {activeStep === "review" && (
-                <ReviewPanel response={summary} fallbackTotal={localTotal} />
+                <ReviewPanel summary={taxAnalysis?.income_summary} recommendedItr={taxAnalysis?.recommended_itr} fallbackTotal={localTotal} />
               )}
             </div>
 
@@ -577,15 +528,15 @@ function CheckField({ label, checked, onChange }: { label: string; checked: bool
   );
 }
 
-function ReviewPanel({ response, fallbackTotal }: { response: IncomeResponse | null; fallbackTotal: number }) {
-  const totals = Object.entries(response?.summary ?? { gross_total_income: fallbackTotal }).filter(([, value]) => typeof value === "number");
+function ReviewPanel({ summary, recommendedItr, fallbackTotal }: { summary?: Record<string, any>; recommendedItr?: string; fallbackTotal: number }) {
+  const totals = Object.entries(summary ?? { gross_total_income: fallbackTotal }).filter(([, value]) => typeof value === "number");
   return (
     <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
       <div>
         <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Recommended ITR</p>
         <div className="mt-3 rounded-3xl bg-primary p-6 text-primary-foreground">
-          <p className="text-6xl font-black">{response?.recommended_itr ?? "Save"}</p>
-          <p className="mt-3 text-sm opacity-75">Save Intake to update your return form recommendation.</p>
+          <p className="text-6xl font-black">{recommendedItr ?? "ITR-1"}</p>
+          <p className="mt-3 text-sm opacity-75">Statutory ITR form recommended based on active income heads.</p>
         </div>
       </div>
       <div>
@@ -598,16 +549,6 @@ function ReviewPanel({ response, fallbackTotal }: { response: IncomeResponse | n
             </div>
           ))}
         </div>
-        {response?.warnings?.length ? (
-          <div className="mt-4 space-y-2">
-            {response.warnings.map((warning) => (
-              <div key={warning} className="flex gap-3 rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 text-sm font-medium">
-                <AlertTriangle className="shrink-0 text-amber-600" size={18} />
-                {warning}
-              </div>
-            ))}
-          </div>
-        ) : null}
       </div>
     </div>
   );

@@ -160,14 +160,15 @@ interface TaxWorkspaceContextType {
   uploadDocument: (formData: FormData) => Promise<TaxDocument>;
   deleteDocument: (docId: number) => Promise<void>;
   runReconciliation: () => Promise<void>;
+  applyCapitalGains: (stcg: number, ltcg: number) => Promise<void>;
   refreshAll: () => Promise<void>;
 }
 
 const defaultDeductions: DeductionsPayload = {
-  sec_80c: 150000,
-  sec_80d_self: 25000,
+  sec_80c: 0,
+  sec_80d_self: 0,
   sec_80d_parents: 0,
-  sec_80ccd_1b: 50000,
+  sec_80ccd_1b: 0,
   sec_80e: 0,
   sec_80g: 0,
   sec_80tta_ttb: 0,
@@ -341,6 +342,28 @@ export function TaxWorkspaceProvider({ children }: { children: React.ReactNode }
     await loadFilingDetails(activeFiling.id);
   };
 
+  const applyCapitalGains = async (stcg: number, ltcg: number) => {
+    if (!activeFiling) return;
+    const currentSources = incomeSources || {
+      salary: { enabled: false, employer_count: 1, gross_salary: 0, standard_deduction: 75000, professional_tax: 0, tds: 0 },
+      house_property: { enabled: false, property_count: 1, rental_income: 0, home_loan_interest: 0, municipal_taxes: 0 },
+      business: { enabled: false, business_type: "none", presumptive_scheme: "none", gross_receipts: 0, expenses: 0, net_profit: 0, requires_audit: false },
+      capital_gains: { enabled: true, listed_equity_stcg: stcg, listed_equity_ltcg: ltcg, property_gains: 0, crypto_vda_gains: 0, has_loss_carry_forward: false },
+      foreign: { enabled: false, foreign_income: 0, foreign_assets: false, foreign_tax_credit: 0 },
+      other: { interest_income: 0, dividend_income: 0, agricultural_income: 0, other_income: 0, exempt_income: 0 },
+    };
+    const updated: IncomeSourcesPayload = {
+      ...currentSources,
+      capital_gains: {
+        ...currentSources.capital_gains,
+        enabled: true,
+        listed_equity_stcg: stcg,
+        listed_equity_ltcg: ltcg,
+      },
+    };
+    await saveIncomeSources(updated);
+  };
+
   return (
     <TaxWorkspaceContext.Provider
       value={{
@@ -363,6 +386,7 @@ export function TaxWorkspaceProvider({ children }: { children: React.ReactNode }
         uploadDocument,
         deleteDocument,
         runReconciliation,
+        applyCapitalGains,
         refreshAll,
       }}
     >

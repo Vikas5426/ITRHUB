@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { ArrowRight, TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useMemo, useState, useEffect } from "react";
 
@@ -145,6 +146,22 @@ export function PortfolioPreview() {
               <span className="text-green-600 dark:text-green-400 font-mono font-black text-base flex items-center gap-1">
                 <TrendingUp size={18} /> ₹12,500
               </span>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <Link
+                href="/intake?section=connections"
+                className="flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-xs font-black text-primary-foreground hover:bg-primary/90 transition-all shadow-xs"
+              >
+                <span>Connect Broker CSV</span>
+                <ArrowRight size={14} />
+              </Link>
+              <Link
+                href="/analysis?section=investments"
+                className="flex items-center justify-center gap-2 rounded-full border border-border px-5 py-3 text-xs font-bold text-foreground hover:bg-muted transition-all"
+              >
+                <span>View Capital Gains Analysis</span>
+              </Link>
             </div>
           </div>
         </motion.div>

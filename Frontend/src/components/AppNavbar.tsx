@@ -90,10 +90,19 @@ export function AppNavbar({ links }: AppNavbarProps) {
           <ThemeToggle />
 
           {!loading && user ? (
-            <div className="flex items-center gap-3">
-              <div className="hidden text-xs font-bold md:block text-muted-foreground">
-                Hi, <span className="text-foreground">{user.full_name.split(' ')[0]}</span>
-              </div>
+            <div className="flex items-center gap-2.5">
+              <Link
+                href="/profile"
+                className="flex items-center gap-2 rounded-full border border-border/80 bg-muted/40 hover:bg-muted py-1 pl-1 pr-3 transition-all group"
+                title="Taxpayer Profile & Settings"
+              >
+                <div className="size-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[10px] font-black">
+                  {user.full_name ? user.full_name.charAt(0).toUpperCase() : "U"}
+                </div>
+                <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                  {user.full_name.split(" ")[0]}
+                </span>
+              </Link>
               <button 
                 onClick={logout}
                 className="rounded-full border border-border px-3.5 py-1.5 text-xs font-bold hover:bg-muted hover:text-destructive transition-all"

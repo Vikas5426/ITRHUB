@@ -101,12 +101,12 @@ function formatCurrency(val: number) {
 export function IntakeDeductionsPanel() {
   const { deductions, saveDeductions } = useTaxWorkspace();
   const [claims, setClaims] = useState<Record<string, number>>({
-    "80c": deductions?.sec_80c || 150000,
-    "80d": (deductions?.sec_80d_self || 0) + (deductions?.sec_80d_parents || 0) || 25000,
-    "80ccd1b": deductions?.sec_80ccd_1b || 50000,
-    "hra": deductions?.hra_exemption || 0,
-    "24b": deductions?.sec_24b_home_loan || 0,
-    "80g": deductions?.sec_80g || 0,
+    "80c": deductions?.sec_80c ?? 0,
+    "80d": (deductions?.sec_80d_self ?? 0) + (deductions?.sec_80d_parents ?? 0),
+    "80ccd1b": deductions?.sec_80ccd_1b ?? 0,
+    "hra": deductions?.hra_exemption ?? 0,
+    "24b": deductions?.sec_24b_home_loan ?? 0,
+    "80g": deductions?.sec_80g ?? 0,
   });
 
   const [saving, setSaving] = useState(false);
@@ -115,12 +115,12 @@ export function IntakeDeductionsPanel() {
   useEffect(() => {
     if (deductions) {
       setClaims({
-        "80c": deductions.sec_80c,
-        "80d": deductions.sec_80d_self + deductions.sec_80d_parents,
-        "80ccd1b": deductions.sec_80ccd_1b,
-        "hra": deductions.hra_exemption,
-        "24b": deductions.sec_24b_home_loan,
-        "80g": deductions.sec_80g,
+        "80c": deductions.sec_80c ?? 0,
+        "80d": (deductions.sec_80d_self ?? 0) + (deductions.sec_80d_parents ?? 0),
+        "80ccd1b": deductions.sec_80ccd_1b ?? 0,
+        "hra": deductions.hra_exemption ?? 0,
+        "24b": deductions.sec_24b_home_loan ?? 0,
+        "80g": deductions.sec_80g ?? 0,
       });
     }
   }, [deductions]);

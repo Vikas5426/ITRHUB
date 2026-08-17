@@ -1,12 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
   CheckCircle2,
-  ClipboardCheck,
   Download,
   FileJson,
   FileSpreadsheet,
@@ -14,27 +11,12 @@ import {
   RefreshCw,
   ShieldCheck,
   CreditCard,
-  Code,
   Copy,
   Check,
-  Sparkles,
 } from "lucide-react";
 
-import { useAuth } from "@/components/AuthProvider";
+import { useTaxWorkspace } from "@/context/TaxWorkspaceContext";
 import { apiRequest } from "@/lib/api";
-
-type Profile = {
-  id: number;
-  display_name: string;
-};
-
-type Filing = {
-  id: number;
-  profile_id: number;
-  assessment_year_start: number;
-  itr_form: string | null;
-  completion_percent: number;
-};
 
 type Schedule = {
   code: string;
@@ -90,10 +72,6 @@ type ReturnPack = {
 
 const itrForms = ["ITR-1", "ITR-2", "ITR-3", "ITR-4"];
 
-function ayLabel(start: number) {
-  return `AY ${start}-${String(start + 1).slice(-2)}`;
-}
-
 function currency(value: number) {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -120,13 +98,8 @@ function statusBadge(status: Schedule["status"]) {
 }
 
 function ReturnPreparationWorkbenchInner() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const { user, loading: authLoading } = useAuth();
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [filings, setFilings] = useState<Filing[]>([]);
-  const [activeFilingId, setActiveFilingId] = useState<number | null>(null);
-  const [selectedItr, setSelectedItr] = useState("ITR-1");
+  const { activeFiling, taxAnalysis, loading } = useTaxWorkspace();
+  const [selectedItr, setSelectedItr] = useState<string>("ITR-1");
   const [pack, setPack] = useState<ReturnPack | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -137,101 +110,40 @@ function ReturnPreparationWorkbenchInner() {
   const portalJson = useMemo(() => JSON.stringify(pack?.portal_json ?? {}, null, 2), [pack]);
 
   const loadPack = useCallback(async (filingId: number) => {
+    setBusy(true);
+    setError("");
     try {
       const response = await apiRequest<ReturnPack>(`/api/workspace/filings/${filingId}/return-preparation`);
       setPack(response);
       setSelectedItr(response.itr_form);
-    } catch {
-      // Create fallback draft for smooth offline UX
-      const mockPack: ReturnPack = {
-        workspace_id: filingId,
-        assessment_year: "2026-27",
-        itr_form: selectedItr || "ITR-1",
-        recommended_itr: "ITR-1",
-        engine_version: "ITRHUB-AY2627-v1",
-        official_utility_status: "Verified",
-        schedules: [
-          { code: "PART_A_GEN", name: "Part A - General Information", status: "ready", fields: { pan: "ABCDE1234F", return_filed: "139(1)", regime: "New (115BAC)" } },
-          { code: "SCHEDULE_S", name: "Schedule S - Salary Income", status: "ready", fields: { gross_salary: 1200000, standard_deduction: 75000, net_salary: 1125000 } },
-          { code: "SCHEDULE_HP", name: "Schedule HP - House Property", status: "not_applicable", fields: { property_type: "None", annual_value: 0 } },
-          { code: "SCHEDULE_CG", name: "Schedule CG - Capital Gains", status: "not_applicable", fields: { stcg_15: 0, ltcg_10: 0 } },
-          { code: "SCHEDULE_VIA", name: "Schedule Chapter VI-A Deductions", status: "ready", fields: { sec_80c: 0, sec_80d: 0, total_deductions: 0 } },
-          { code: "SCHEDULE_TDS", name: "Schedule TDS - Tax Deducted at Source", status: "ready", fields: { employer_tds: 71500, bank_tds: 0, total_tds: 71500 } },
-        ],
-        validations: [
-          { code: "ITRHUB-V01", severity: "info", schedule: "SCHEDULE_S", message: "Standard deduction of ₹75,000 auto-applied under Section 16(ia).", plain_language: "Verified standard deduction under Section 115BAC.", suggested_fix: "No action needed." },
-        ],
-        tax_summary: {
-          gross_total_income: 1200000,
-          deductions: 75000,
-          taxable_income: 1125000,
-          tax_before_credits: 71500,
-          tax_paid: 71500,
-          refund: 0,
-          self_assessment_tax_due: 0,
-          total_payable: 0,
-          interest: { section_234a: 0, section_234b: 0, section_234c: 0, total_interest: 0, plain_language: "No interest liability under Sec 234A/B/C." },
-        },
-        challan_guidance: {
-          is_required: false,
-          amount: 0,
-          challan: "ITNS 280",
-          minor_head: "300 - Self Assessment Tax",
-          plain_language: "Zero self-assessment tax due. Total tax is covered by TDS.",
-        },
-        portal_json: {
-          ITR: {
-            schemaVersion: "ITRHUB-AY2026-27-v1",
-            form: selectedItr || "ITR-1",
-            assessmentYear: "2026-27",
-            partB_TI: { grossTotalIncome: 1200000, deductions: 75000, totalIncome: 1125000 },
-            partB_TTI: { taxPayable: 71500, taxPaid: 71500, balanceTaxPayable: 0 },
-          },
-        },
-      };
-      setPack(mockPack);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load return preparation pack");
+    } finally {
+      setBusy(false);
     }
-  }, [selectedItr]);
-
-  const loadBase = useCallback(async () => {
-    try {
-      const [profileData, filingData] = await Promise.all([
-        apiRequest<Profile[]>("/api/workspace/profiles"),
-        apiRequest<Filing[]>("/api/workspace/filings"),
-      ]);
-      setProfiles(profileData);
-      setFilings(filingData);
-      const requested = Number(searchParams.get("filing"));
-      const selected = filingData.find((filing) => filing.id === requested) ?? filingData[0];
-      setActiveFilingId(selected?.id ?? 1);
-      await loadPack(selected?.id ?? 1);
-    } catch {
-      setActiveFilingId(1);
-      await loadPack(1);
-    }
-  }, [loadPack, searchParams]);
+  }, []);
 
   useEffect(() => {
-    void loadBase();
-  }, [loadBase]);
+    if (activeFiling?.id) {
+      void loadPack(activeFiling.id);
+    }
+  }, [activeFiling?.id, loadPack]);
 
   async function generatePack() {
+    if (!activeFiling) return;
     setBusy(true);
     setError("");
     setMessage("");
     try {
-      if (activeFilingId) {
-        const response = await apiRequest<ReturnPack>(
-          `/api/workspace/filings/${activeFilingId}/return-preparation`,
-          { method: "POST", body: JSON.stringify({ itr_form: selectedItr }) },
-        );
-        setPack(response);
-        setSelectedItr(response.itr_form);
-        setMessage(`Updated ${response.itr_form} schedule pack.`);
-      }
-    } catch {
-      await loadPack(activeFilingId ?? 1);
-      setMessage(`Generated draft ${selectedItr} schedules.`);
+      const response = await apiRequest<ReturnPack>(
+        `/api/workspace/filings/${activeFiling.id}/return-preparation`,
+        { method: "POST", body: JSON.stringify({ itr_form: selectedItr }) },
+      );
+      setPack(response);
+      setSelectedItr(response.itr_form);
+      setMessage(`Generated ${response.itr_form} schedule pack based on your live financial data.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate return pack");
     } finally {
       setBusy(false);
     }
@@ -256,6 +168,14 @@ function ReturnPreparationWorkbenchInner() {
     setTimeout(() => setCopiedJson(false), 2000);
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Top Configuration & Selection Bar */}
@@ -275,7 +195,7 @@ function ReturnPreparationWorkbenchInner() {
               </select>
               <button
                 onClick={() => void generatePack()}
-                disabled={busy}
+                disabled={busy || !activeFiling}
                 className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-1.5 text-xs font-black text-primary-foreground hover:bg-primary/90 disabled:opacity-40 shadow-xs"
               >
                 {busy ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
@@ -292,6 +212,18 @@ function ReturnPreparationWorkbenchInner() {
           </span>
         </div>
       </div>
+
+      {(error || message) && (
+        <div
+          className={`rounded-2xl border p-3.5 text-xs font-bold ${
+            error
+              ? "border-destructive/20 bg-destructive/10 text-destructive"
+              : "border-green-600/20 bg-green-600/10 text-green-700 dark:text-green-400"
+          }`}
+        >
+          {error || message}
+        </div>
+      )}
 
       {/* Metric Cards Row */}
       {pack && (
@@ -483,4 +415,3 @@ export function ReturnPreparationWorkbench() {
     </Suspense>
   );
 }
-

@@ -1,9 +1,11 @@
 from typing import Optional
 from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, UploadFile
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.database import get_db
 from app.dependencies.auth import get_optional_current_user
 from app.models.user import User
-from app.services import tax_engine
+from app.services import tax_engine, user_service
 from app.services.portfolio_service import parse_and_calc
 
 router = APIRouter()
@@ -17,13 +19,14 @@ async def analyze(
     deductions: Optional[float] = Form(0.0),
     regime: Optional[str] = Form("old"),
     current_user: Optional[User] = Depends(get_optional_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """Analyze uploaded broker CSV and optionally return a full tax summary.
 
     - If `income` is provided, the endpoint will call `tax_engine.calculate_tax`
       with aggregated special-tax components and return `tax_summary`.
     - If the user is authenticated and `income` is not provided, the endpoint will
-      attempt to lookup the authenticated user's financials securely using `current_user.id`.
+      attempt to lookup the authenticated user's financials securely from the database.
     """
     txt = None
     if file is not None:
@@ -53,15 +56,15 @@ async def analyze(
     result = {"data": items, "special_tax_components": special}
 
     # Determine income/deductions: prefer explicit form fields,
-    # otherwise try to fetch for authenticated user
+    # otherwise try to fetch for authenticated user from DB
     used_income = income
     used_deductions = deductions or 0.0
 
     if used_income is None and current_user is not None:
         try:
-            from app.services import user_service
-
-            profile = user_service.get_user_financials(current_user.id)
+            profile = await user_service.get_user_financials_from_db(db, current_user.id)
+            if not profile:
+                profile = user_service.get_user_financials(current_user.id)
             if profile:
                 used_income = float(profile.get("income", 0.0))
                 used_deductions = float(profile.get("deductions", 0.0))
@@ -79,3 +82,4 @@ async def analyze(
         result["tax_summary"] = tax_summary
 
     return result
+

@@ -117,7 +117,7 @@ export function AnalysisCommandCenter() {
   const previousStep = steps[activeIndex - 1];
   const nextStep = steps[activeIndex + 1];
 
-  const healthScore = taxAnalysis?.readiness_score || 88;
+  const healthScore = taxAnalysis?.readiness_score ?? 0;
 
   function selectStep(id: AnalysisStepId) {
     setSelectedStepId(id);
@@ -363,26 +363,26 @@ function HealthReview({ onSelectStep }: { onSelectStep: (id: AnalysisStepId) => 
 function TaxDecisionEngine() {
   const { taxAnalysis, deductions } = useTaxWorkspace();
 
-  const [grossIncome, setGrossIncome] = useState(1500000);
-  const [deductions80C, setDeductions80C] = useState(deductions?.sec_80c || 150000);
+  const [grossIncome, setGrossIncome] = useState(taxAnalysis?.income_summary?.gross_total_income ?? 0);
+  const [deductions80C, setDeductions80C] = useState(deductions?.sec_80c ?? 0);
   const [deductions80D, setDeductions80D] = useState(
-    (deductions?.sec_80d_self || 0) + (deductions?.sec_80d_parents || 0) || 25000
+    (deductions?.sec_80d_self ?? 0) + (deductions?.sec_80d_parents ?? 0)
   );
-  const [hra, setHra] = useState(deductions?.hra_exemption || 100000);
-  const [nps, setNps] = useState(deductions?.sec_80ccd_1b || 50000);
+  const [hra, setHra] = useState(deductions?.hra_exemption ?? 0);
+  const [nps, setNps] = useState(deductions?.sec_80ccd_1b ?? 0);
 
   useEffect(() => {
-    if (taxAnalysis?.income_summary?.gross_total_income) {
-      setGrossIncome(Number(taxAnalysis.income_summary.gross_total_income));
+    if (taxAnalysis?.income_summary?.gross_total_income !== undefined) {
+      setGrossIncome(Number(taxAnalysis.income_summary.gross_total_income) || 0);
     }
   }, [taxAnalysis]);
 
   useEffect(() => {
     if (deductions) {
-      setDeductions80C(deductions.sec_80c);
-      setDeductions80D(deductions.sec_80d_self + deductions.sec_80d_parents);
-      setHra(deductions.hra_exemption);
-      setNps(deductions.sec_80ccd_1b);
+      setDeductions80C(deductions.sec_80c ?? 0);
+      setDeductions80D((deductions.sec_80d_self ?? 0) + (deductions.sec_80d_parents ?? 0));
+      setHra(deductions.hra_exemption ?? 0);
+      setNps(deductions.sec_80ccd_1b ?? 0);
     }
   }, [deductions]);
 
@@ -539,7 +539,7 @@ function TaxDecisionEngine() {
             </div>
             <input
               type="range"
-              min={300000}
+              min={0}
               max={5000000}
               step={25000}
               value={grossIncome}
@@ -556,7 +556,7 @@ function TaxDecisionEngine() {
               type="range"
               min={0}
               max={150000}
-              step={10000}
+              step={5000}
               value={deductions80C}
               onChange={(e) => setDeductions80C(Number(e.target.value))}
               className="w-full accent-primary"
@@ -579,39 +579,53 @@ function CapitalGainsInteractiveReview() {
 function DeductionOptimizationReview() {
   const { deductions } = useTaxWorkspace();
 
-  const sec80c = deductions?.sec_80c || 150000;
-  const sec80d = (deductions?.sec_80d_self || 0) + (deductions?.sec_80d_parents || 0) || 25000;
-  const sec80ccd = deductions?.sec_80ccd_1b || 50000;
-  const sec24b = deductions?.sec_24b_home_loan || 0;
+  const sec80c = deductions?.sec_80c ?? 0;
+  const sec80d = (deductions?.sec_80d_self ?? 0) + (deductions?.sec_80d_parents ?? 0);
+  const sec80ccd = deductions?.sec_80ccd_1b ?? 0;
+  const sec24b = deductions?.sec_24b_home_loan ?? 0;
 
   const items = [
     {
       section: "Section 80C",
       claimed: sec80c,
       max: 150000,
-      status: sec80c >= 150000 ? "Fully Utilized" : "Partially Used",
-      suggestion: sec80c >= 150000 ? "Max cap of ₹1.5 Lakh reached with ELSS & EPF." : `You can claim ${currency(150000 - sec80c)} more under 80C.`,
+      status: sec80c >= 150000 ? "Fully Utilized" : sec80c > 0 ? "Partially Used" : "Not Claimed",
+      suggestion:
+        sec80c >= 150000
+          ? "Max cap of ₹1.5 Lakh reached with ELSS & EPF."
+          : sec80c > 0
+          ? `You can claim ${currency(150000 - sec80c)} more under 80C.`
+          : "Invest in ELSS, PPF, or EPF to claim up to ₹1.5 Lakh in Old Regime.",
     },
     {
       section: "Section 80D",
       claimed: sec80d,
       max: 100000,
-      status: sec80d >= 75000 ? "Fully Utilized" : "Partially Used",
-      suggestion: "Additional deduction available by insuring senior citizen parents (up to ₹50,000).",
+      status: sec80d >= 75000 ? "Fully Utilized" : sec80d > 0 ? "Partially Used" : "Not Claimed",
+      suggestion:
+        sec80d > 0
+          ? "Additional deduction available by insuring senior citizen parents (up to ₹50,000)."
+          : "Claim health insurance premiums for self, family (up to ₹25k) and senior parents (up to ₹50k).",
     },
     {
       section: "Section 80CCD(1B) NPS",
       claimed: sec80ccd,
       max: 50000,
-      status: sec80ccd >= 50000 ? "Fully Utilized" : "Not Claimed",
-      suggestion: "Exclusive ₹50,000 NPS tax deduction claimed over and above 80C.",
+      status: sec80ccd >= 50000 ? "Fully Utilized" : sec80ccd > 0 ? "Partially Used" : "Not Claimed",
+      suggestion:
+        sec80ccd > 0
+          ? "Exclusive NPS tax deduction claimed over and above 80C."
+          : "Invest up to ₹50,000 in Tier-1 NPS for an exclusive deduction over and above 80C.",
     },
     {
       section: "Section 24(b) Home Loan",
       claimed: sec24b,
       max: 200000,
       status: sec24b > 0 ? "Claimed" : "Not Claimed",
-      suggestion: "If you pay interest on a home loan, claim up to ₹2 Lakhs in Old Regime.",
+      suggestion:
+        sec24b > 0
+          ? `Claiming ${currency(sec24b)} in home loan interest.`
+          : "If you pay interest on a home loan, claim up to ₹2 Lakhs in Old Regime.",
     },
   ];
 
@@ -626,7 +640,15 @@ function DeductionOptimizationReview() {
                 {currency(item.claimed)} / {currency(item.max)}
               </span>
             </div>
-            <p className="text-xs font-bold text-green-600 dark:text-green-400 mb-1">{item.status}</p>
+            <p
+              className={`text-xs font-bold mb-1 ${
+                item.status === "Not Claimed"
+                  ? "text-muted-foreground"
+                  : "text-green-600 dark:text-green-400"
+              }`}
+            >
+              {item.status}
+            </p>
             <p className="text-xs text-muted-foreground leading-relaxed">{item.suggestion}</p>
           </div>
         ))}

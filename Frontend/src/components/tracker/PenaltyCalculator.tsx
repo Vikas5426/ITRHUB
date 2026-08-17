@@ -6,17 +6,18 @@ import { useTaxWorkspace } from "@/context/TaxWorkspaceContext";
 
 export function PenaltyCalculator() {
   const { taxAnalysis, incomeSources } = useTaxWorkspace();
-  const [income, setIncome] = useState<string>("1200000");
+  const [income, setIncome] = useState<string>("");
   const [monthsDelay, setMonthsDelay] = useState<number>(3);
-  const [taxPaid, setTaxPaid] = useState<string>("50000");
+  const [taxPaid, setTaxPaid] = useState<string>("");
 
   useEffect(() => {
-    if (taxAnalysis?.income_summary?.gross_total_income) {
+    if (taxAnalysis?.income_summary?.gross_total_income !== undefined) {
       const gti = Number(taxAnalysis.income_summary.gross_total_income);
-      if (gti > 0) setIncome(String(gti));
+      setIncome(gti > 0 ? String(gti) : "");
     }
-    if (incomeSources?.salary?.tds) {
-      setTaxPaid(String(incomeSources.salary.tds));
+    if (incomeSources?.salary?.tds !== undefined) {
+      const tds = Number(incomeSources.salary.tds);
+      setTaxPaid(tds > 0 ? String(tds) : "");
     }
   }, [taxAnalysis, incomeSources]);
 

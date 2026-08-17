@@ -30,6 +30,7 @@ import { IntakeDeductionsPanel } from "./IntakeDeductionsPanel";
 import { IncomeSourceWizard } from "../income/IncomeSourceWizard";
 import { DocumentsWorkbench } from "../documents/DocumentsWorkbench";
 import { PORTFOLIO_ANALYSIS_STORAGE_KEY } from "@/lib/storageKeys";
+import { useTaxWorkspace } from "@/context/TaxWorkspaceContext";
 
 type IntakeStepId = "setup" | "income" | "deductions" | "documents" | "connections" | "review";
 
@@ -108,6 +109,7 @@ function stepUrl(id: IntakeStepId) {
 export function IntakeCommandCenter() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { applyCapitalGains, documents, incomeSources, deductions, taxAnalysis } = useTaxWorkspace();
   const [selectedStepId, setSelectedStepId] = useState<IntakeStepId>("setup");
   const [brokerFileName, setBrokerFileName] = useState("");
   const [tradeCount, setTradeCount] = useState<number | null>(null);
@@ -139,18 +141,26 @@ export function IntakeCommandCenter() {
         body: JSON.stringify({ csv_text: text }),
       });
       const result = await res.json();
-      if (result.data) {
-        setTradeCount(result.data.length);
+      if (result.data && Array.isArray(result.data)) {
+        const trades = result.data;
+        setTradeCount(trades.length);
         window.localStorage.setItem(
           PORTFOLIO_ANALYSIS_STORAGE_KEY,
-          JSON.stringify({ source: file.name, generatedAt: new Date().toISOString(), trades: result.data })
+          JSON.stringify({ source: file.name, generatedAt: new Date().toISOString(), trades })
         );
         window.dispatchEvent(new Event("itrhub:portfolio-analysis-updated"));
-      } else {
-        setTradeCount(5); // fallback sample
+
+        const stcg = trades
+          .filter((t: { cat?: string; gain?: number }) => t.cat === "STCG")
+          .reduce((acc: number, t: { gain?: number }) => acc + Math.max(0, t.gain ?? 0), 0);
+        const ltcg = trades
+          .filter((t: { cat?: string; gain?: number }) => t.cat === "LTCG")
+          .reduce((acc: number, t: { gain?: number }) => acc + Math.max(0, t.gain ?? 0), 0);
+
+        await applyCapitalGains(stcg, ltcg);
       }
-    } catch {
-      setTradeCount(5);
+    } catch (err) {
+      console.error("Error parsing broker CSV:", err);
     }
   };
 
@@ -306,6 +316,16 @@ export function IntakeCommandCenter() {
             brokerFileName={brokerFileName}
             tradeCount={tradeCount}
             onSelectStep={selectStep}
+            documentsCount={documents.length}
+            grossIncome={taxAnalysis?.income_summary?.gross_total_income ?? 0}
+            totalDeductions={
+              (deductions.sec_80c || 0) +
+              (deductions.sec_80d_self || 0) +
+              (deductions.sec_80d_parents || 0) +
+              (deductions.sec_80ccd_1b || 0) +
+              (deductions.hra_exemption || 0) +
+              (deductions.sec_24b_home_loan || 0)
+            }
           />
         )}
       </div>
@@ -413,10 +433,16 @@ function IntakeReviewPanel({
   brokerFileName,
   tradeCount,
   onSelectStep,
+  documentsCount,
+  grossIncome,
+  totalDeductions,
 }: {
   brokerFileName: string;
   tradeCount: number | null;
   onSelectStep: (id: IntakeStepId) => void;
+  documentsCount: number;
+  grossIncome: number;
+  totalDeductions: number;
 }) {
   const readinessItems = [
     {
@@ -428,28 +454,28 @@ function IntakeReviewPanel({
     },
     {
       title: "Income Mappings",
-      subtitle: "Salaries, property, business, and capital gains captured",
-      status: "Captured",
+      subtitle: grossIncome > 0 ? `₹${grossIncome.toLocaleString("en-IN")} gross total income captured` : "Salaries, property, business, and capital gains",
+      status: grossIncome > 0 ? "Captured" : "Ready",
       step: "income" as const,
       icon: BriefcaseBusiness,
     },
     {
       title: "Deduction Claims",
-      subtitle: "80C, 80D, 80CCD, HRA, 24(b) declared",
-      status: "Configured",
+      subtitle: totalDeductions > 0 ? `₹${totalDeductions.toLocaleString("en-IN")} total deductions declared` : "80C, 80D, 80CCD, HRA, 24(b) declared",
+      status: totalDeductions > 0 ? "Configured" : "Ready",
       step: "deductions" as const,
       icon: Landmark,
     },
     {
       title: "Document Evidence Vault",
-      subtitle: "Form 16, AIS/TIS, and 26AS repository",
-      status: "Ready for files",
+      subtitle: documentsCount > 0 ? `${documentsCount} document(s) in encrypted vault` : "Form 16, AIS/TIS, and 26AS repository",
+      status: documentsCount > 0 ? "Reconciled" : "Ready for files",
       step: "documents" as const,
       icon: FileText,
     },
     {
       title: "Broker Data",
-      subtitle: brokerFileName ? `${brokerFileName} (${tradeCount || 0} trades)` : "Ready for statement upload",
+      subtitle: brokerFileName ? `${brokerFileName} (${tradeCount || 0} trades synced)` : "Ready for statement upload",
       status: brokerFileName ? "Connected" : "Optional",
       step: "connections" as const,
       icon: PlugZap,

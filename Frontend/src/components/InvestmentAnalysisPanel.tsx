@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, FileSpreadsheet, TrendingUp } from "lucide-react";
+import { ArrowRight, FileSpreadsheet, TrendingUp, ShieldCheck, Plus } from "lucide-react";
 
 import { PORTFOLIO_ANALYSIS_STORAGE_KEY } from "@/lib/storageKeys";
+import { useTaxWorkspace } from "@/context/TaxWorkspaceContext";
 
 type TradeData = {
   id: number;
@@ -42,6 +43,7 @@ function readAnalysis() {
 }
 
 export function InvestmentAnalysisPanel() {
+  const { incomeSources } = useTaxWorkspace();
   const [analysis, setAnalysis] = useState<StoredPortfolioAnalysis | null>(null);
 
   useEffect(() => {
@@ -74,7 +76,68 @@ export function InvestmentAnalysisPanel() {
     };
   }, [analysis]);
 
+  const cg = incomeSources?.capital_gains;
+  const hasDbGains = Boolean(cg?.enabled && ((cg.listed_equity_stcg || 0) > 0 || (cg.listed_equity_ltcg || 0) > 0 || (cg.property_gains || 0) > 0));
+
   if (!analysis || analysis.trades.length === 0) {
+    if (hasDbGains) {
+      const stcg = cg?.listed_equity_stcg || 0;
+      const ltcg = cg?.listed_equity_ltcg || 0;
+      const prop = cg?.property_gains || 0;
+      const totalGains = stcg + ltcg + prop;
+      const estTax = stcg * 0.20 + Math.max(0, ltcg - 125000) * 0.125 + prop * 0.125;
+
+      return (
+        <div className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <MetricCard label="Filing status" value="Active in Return" />
+            <MetricCard label="Total gains" value={currency(totalGains)} />
+            <MetricCard label="Short term (20%)" value={currency(stcg)} />
+            <MetricCard label="Estimated tax" value={currency(estTax)} tone={estTax > 0 ? "red" : "default"} />
+          </div>
+
+          <div className="minimal-card p-6">
+            <div className="flex items-start gap-3">
+              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                <TrendingUp size={22} />
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Database Synchronized</p>
+                <h2 className="mt-1 text-2xl font-black">Active Capital Gains Breakdown</h2>
+                <p className="mt-1 text-sm text-muted-foreground">Derived from your unified return workspace in PostgreSQL.</p>
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-3">
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <span className="text-xs font-bold text-muted-foreground">Sec 111A (STCG Equity)</span>
+                <p className="mt-1 text-xl font-black">{currency(stcg)}</p>
+                <span className="text-[11px] font-semibold text-muted-foreground">Taxed at flat 20%</span>
+              </div>
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <span className="text-xs font-bold text-muted-foreground">Sec 112A (LTCG Equity)</span>
+                <p className="mt-1 text-xl font-black">{currency(ltcg)}</p>
+                <span className="text-[11px] font-semibold text-muted-foreground">Taxed at 12.5% (&gt; ₹1.25L)</span>
+              </div>
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <span className="text-xs font-bold text-muted-foreground">Property & Real Estate</span>
+                <p className="mt-1 text-xl font-black">{currency(prop)}</p>
+                <span className="text-[11px] font-semibold text-muted-foreground">Taxed at 12.5% without indexation</span>
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-between pt-4 border-t border-border">
+              <span className="text-xs text-muted-foreground">Want to upload a detailed trade statement?</span>
+              <Link href="/intake?section=investments" className="inline-flex items-center gap-1.5 text-xs font-bold text-primary underline underline-offset-4">
+                <span>Upload Broker CSV in Intake</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="minimal-card p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">

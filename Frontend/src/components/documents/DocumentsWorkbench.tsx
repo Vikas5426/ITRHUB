@@ -1,48 +1,18 @@
 "use client";
 
-import Link from "next/link";
-import { FormEvent, Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, Suspense, useState } from "react";
 import {
-  AlertTriangle,
   CheckCircle2,
-  Download,
-  FileSearch,
   FileText,
   Loader2,
   RefreshCw,
   ShieldCheck,
   Trash2,
   Upload,
-  FolderOpen,
-  Plus,
-  Sparkles,
 } from "lucide-react";
 
-import { useAuth } from "@/components/AuthProvider";
+import { useTaxWorkspace, TaxDocument } from "@/context/TaxWorkspaceContext";
 import { apiRequest } from "@/lib/api";
-
-type Profile = {
-  id: number;
-  display_name: string;
-};
-
-type Filing = {
-  id: number;
-  profile_id: number;
-  assessment_year_start: number;
-  itr_form: string | null;
-};
-
-type TaxDocument = {
-  id: number;
-  workspace_id: number;
-  category: string;
-  original_name: string;
-  content_type: string;
-  size_bytes: number;
-  uploaded_at: string;
-};
 
 type ReconciliationReport = {
   workspace_id: number;
@@ -73,150 +43,80 @@ function currency(value: number) {
 }
 
 function DocumentsWorkbenchInner() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const { user, loading: authLoading } = useAuth();
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [filings, setFilings] = useState<Filing[]>([]);
-  const [documents, setDocuments] = useState<TaxDocument[]>([]);
+  const {
+    activeFiling,
+    documents,
+    uploadDocument: contextUploadDocument,
+    deleteDocument: contextDeleteDocument,
+    runReconciliation: contextRunReconciliation,
+    loading,
+  } = useTaxWorkspace();
+
   const [report, setReport] = useState<ReconciliationReport | null>(null);
-  const [activeFilingId, setActiveFilingId] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  const loadDocuments = useCallback(async (filingId: number) => {
-    try {
-      const [docs, latestReport] = await Promise.all([
-        apiRequest<TaxDocument[]>(`/api/workspace/filings/${filingId}/documents`),
-        apiRequest<ReconciliationReport>(`/api/workspace/filings/${filingId}/reconciliation`).catch(() => null),
-      ]);
-      setDocuments(docs);
-      setReport(latestReport);
-    } catch {
-      // Graceful demo defaults
-      setDocuments([
-        { id: 101, workspace_id: filingId, category: "form_16", original_name: "Form16_FY2025-26_Employer.pdf", content_type: "application/pdf", size_bytes: 348200, uploaded_at: new Date().toISOString() },
-        { id: 102, workspace_id: filingId, category: "ais_tis", original_name: "AIS_Annual_Information_Statement.json", content_type: "application/json", size_bytes: 92400, uploaded_at: new Date().toISOString() },
-      ]);
-    }
-  }, []);
-
-  const loadBase = useCallback(async () => {
-    try {
-      const [profileData, filingData] = await Promise.all([
-        apiRequest<Profile[]>("/api/workspace/profiles"),
-        apiRequest<Filing[]>("/api/workspace/filings"),
-      ]);
-      setProfiles(profileData);
-      setFilings(filingData);
-      const requested = Number(searchParams.get("filing"));
-      const selected = filingData.find((filing) => filing.id === requested) ?? filingData[0];
-      setActiveFilingId(selected?.id ?? 1);
-      await loadDocuments(selected?.id ?? 1);
-    } catch {
-      setActiveFilingId(1);
-      await loadDocuments(1);
-    }
-  }, [loadDocuments, searchParams]);
-
-  useEffect(() => {
-    void loadBase();
-  }, [loadBase]);
-
-  async function uploadDocument(event: FormEvent<HTMLFormElement>) {
+  async function handleUpload(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
     const file = formData.get("file") as File | null;
-    const category = String(formData.get("category") || "other");
 
-    if (!file) return;
+    if (!file || !activeFiling) {
+      setError("Please select a valid return workspace before uploading documents.");
+      return;
+    }
     setBusy(true);
     setError("");
     setMessage("");
 
     try {
-      if (activeFilingId) {
-        const doc = await apiRequest<TaxDocument>(
-          `/api/workspace/filings/${activeFilingId}/documents`,
-          { method: "POST", body: formData },
-        );
-        setDocuments((prev) => [...prev, doc]);
-      } else {
-        const newDoc: TaxDocument = {
-          id: Date.now(),
-          workspace_id: 1,
-          category,
-          original_name: file.name,
-          content_type: file.type || "application/octet-stream",
-          size_bytes: file.size,
-          uploaded_at: new Date().toISOString(),
-        };
-        setDocuments((prev) => [...prev, newDoc]);
-      }
+      await contextUploadDocument(formData);
       form.reset();
-      setMessage(`Successfully uploaded ${file.name} to vault.`);
-    } catch {
-      const newDoc: TaxDocument = {
-        id: Date.now(),
-        workspace_id: 1,
-        category,
-        original_name: file.name,
-        content_type: file.type || "application/octet-stream",
-        size_bytes: file.size,
-        uploaded_at: new Date().toISOString(),
-      };
-      setDocuments((prev) => [...prev, newDoc]);
-      setMessage(`Added ${file.name} to vault.`);
-      form.reset();
+      setMessage(`Successfully uploaded ${file.name} to encrypted vault.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to upload document");
     } finally {
       setBusy(false);
     }
   }
 
-  async function deleteDocument(docId: number) {
-    setDocuments((prev) => prev.filter((d) => d.id !== docId));
+  async function handleDelete(docId: number) {
+    setError("");
     try {
-      await apiRequest(`/api/workspace/documents/${docId}`, { method: "DELETE" });
-    } catch {
-      // Local state already updated
+      await contextDeleteDocument(docId);
+      setMessage("Document removed from vault.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete document");
     }
   }
 
-  async function runReconciliation() {
+  async function handleReconcile() {
+    if (!activeFiling) return;
     setBusy(true);
     setError("");
     setMessage("");
     try {
-      if (activeFilingId) {
-        const res = await apiRequest<ReconciliationReport>(
-          `/api/workspace/filings/${activeFilingId}/reconciliation`,
-          { method: "POST" },
-        );
-        setReport(res);
-        setMessage("Reconciliation complete. Cross-checked TDS and salary facts.");
-      }
-    } catch {
-      setReport({
-        workspace_id: activeFilingId ?? 1,
-        generated_at: new Date().toISOString(),
-        documents_reviewed: [],
-        totals: { gross_salary: 1200000, tds_deducted: 71500, bank_interest: 18500 },
-        items: [
-          { category: "salary", description: "Employer Form 16 Salary", document_name: "Form16_FY2025-26.pdf", amount: 1200000 },
-          { category: "tds", description: "TDS Deposited by Employer", document_name: "Form 26AS / AIS", amount: 71500 },
-        ],
-        findings: [
-          { severity: "info", message: "Form 16 gross salary matches AIS Part B reported figures exactly." },
-          { severity: "info", message: "TDS credit of ₹71,500 verified against 26AS ledger." },
-        ],
-        action_items: ["All cross-checks aligned. Ready for Return Schedule validation."],
-      });
-      setMessage("Reconciliation report generated successfully.");
+      await contextRunReconciliation();
+      const res = await apiRequest<ReconciliationReport>(
+        `/api/workspace/filings/${activeFiling.id}/reconciliation`
+      );
+      setReport(res);
+      setMessage("Reconciliation complete. Form 16, AIS, and 26AS cross-checked.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to run reconciliation");
     } finally {
       setBusy(false);
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="animate-spin" />
+      </div>
+    );
   }
 
   return (
@@ -237,7 +137,19 @@ function DocumentsWorkbenchInner() {
           </div>
         </div>
 
-        <form onSubmit={uploadDocument} className="rounded-2xl border border-dashed border-border bg-muted/20 p-4 sm:p-5">
+        {(error || message) && (
+          <div
+            className={`mb-4 rounded-2xl border p-3.5 text-xs font-bold ${
+              error
+                ? "border-destructive/20 bg-destructive/10 text-destructive"
+                : "border-green-600/20 bg-green-600/10 text-green-700 dark:text-green-400"
+            }`}
+          >
+            {error || message}
+          </div>
+        )}
+
+        <form onSubmit={handleUpload} className="rounded-2xl border border-dashed border-border bg-muted/20 p-4 sm:p-5">
           <div className="grid gap-3 sm:grid-cols-[180px_1fr_auto]">
             <select
               name="category"
@@ -260,7 +172,7 @@ function DocumentsWorkbenchInner() {
             />
             <button
               type="submit"
-              disabled={busy}
+              disabled={busy || !activeFiling}
               className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-black text-primary-foreground hover:bg-primary/90 disabled:opacity-40 shadow-xs"
             >
               {busy ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
@@ -277,7 +189,7 @@ function DocumentsWorkbenchInner() {
             </span>
             {documents.length > 0 && (
               <button
-                onClick={() => void runReconciliation()}
+                onClick={() => void handleReconcile()}
                 disabled={busy}
                 className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary px-3 py-1 text-xs font-black hover:bg-primary hover:text-primary-foreground transition-all shadow-xs"
               >
@@ -306,7 +218,7 @@ function DocumentsWorkbenchInner() {
 
               <div className="flex items-center gap-1">
                 <button
-                  onClick={() => void deleteDocument(doc.id)}
+                  onClick={() => void handleDelete(doc.id)}
                   className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors"
                   title="Remove document"
                 >

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { UploadCloud, FileSpreadsheet, X, ShieldAlert } from "lucide-react";
+import { UploadCloud, FileSpreadsheet, X, ShieldAlert, CheckCircle2, Loader2, Sparkles } from "lucide-react";
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend, ReferenceLine } from 'recharts';
 
 import { PORTFOLIO_ANALYSIS_STORAGE_KEY } from "@/lib/storageKeys";
+import { useTaxWorkspace } from "@/context/TaxWorkspaceContext";
 
 type TradeData = {
   id: number;
@@ -50,11 +51,45 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 }
 
 export function PortfolioAnalyzer() {
+  const { activeFiling, applyCapitalGains } = useTaxWorkspace();
   const [data, setData] = useState<TradeData[]>([]);
   const [loading, setLoading] = useState(false);
+  const [applying, setApplying] = useState(false);
+  const [applied, setApplied] = useState(false);
   const [selectedTrade, setSelectedTrade] = useState<TradeData | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [notice, setNotice] = useState<{ type: "error" | "info"; message: string } | null>(null);
+
+  const stcgGains = useMemo(
+    () => data.filter((d) => d.cat === "STCG").reduce((acc, d) => acc + Math.max(0, d.gain), 0),
+    [data]
+  );
+  const ltcgGains = useMemo(
+    () => data.filter((d) => d.cat === "LTCG").reduce((acc, d) => acc + Math.max(0, d.gain), 0),
+    [data]
+  );
+  const totalTaxComputed = useMemo(() => data.reduce((acc, d) => acc + (d.tax || 0), 0), [data]);
+
+  const handleApplyToReturn = async () => {
+    if (!activeFiling) {
+      setNotice({ type: "error", message: "Please select or create an active return first." });
+      return;
+    }
+    setApplying(true);
+    try {
+      await applyCapitalGains(stcgGains, ltcgGains);
+      setApplied(true);
+      setNotice({
+        type: "info",
+        message: `Applied STCG (₹${stcgGains.toLocaleString("en-IN")}) and LTCG (₹${ltcgGains.toLocaleString("en-IN")}) to active return!`,
+      });
+      setTimeout(() => setApplied(false), 4000);
+    } catch {
+      setNotice({ type: "error", message: "Failed to apply capital gains to return." });
+    } finally {
+      setApplying(false);
+    }
+  };
 
   const saveAnalysis = (trades: TradeData[], source: string) => {
     setData(trades);
@@ -70,7 +105,6 @@ export function PortfolioAnalyzer() {
     setNotice(null);
     try {
       const text = await f.text();
-      // send as JSON with csv_text for easier integration
       const res = await fetch("/api/portfolio/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -93,7 +127,6 @@ export function PortfolioAnalyzer() {
     } catch (err) {
       console.error(err);
       setNotice({ type: "info", message: "Backend is unavailable, so sample trades are shown for preview." });
-      // Fallback dummy data for preview if backend isn't running
       const dummy: TradeData[] = [
         { id: 1, name: "Reliance Ind", type: "Listed Equity", days: 400, gain: 150000, tax: 3250, bd: "2023-01-10", sd: "2024-02-14", cat: "LTCG" },
         { id: 2, name: "TCS", type: "Listed Equity", days: 200, gain: 80000, tax: 16640, bd: "2023-08-10", sd: "2024-02-26", cat: "STCG" },
@@ -179,29 +212,61 @@ export function PortfolioAnalyzer() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Chart Section */}
           <div className="flex-1 minimal-card p-8 relative">
-            <div className="flex justify-between items-start mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div>
                 <h3 className="text-2xl font-black text-black dark:text-white mb-1">Tax Impact Map</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Bubble size represents the total tax amount. Click a bubble to view trade details.</p>
               </div>
-              <button
-                onClick={() => {
-                  setData([]);
-                  window.localStorage.removeItem(PORTFOLIO_ANALYSIS_STORAGE_KEY);
-                  window.dispatchEvent(new Event("itrhub:portfolio-analysis-updated"));
-                }}
-                className="text-sm font-bold text-gray-500 hover:text-black dark:hover:text-white flex items-center gap-2"
-              >
-                <FileSpreadsheet size={16} /> New Upload
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => void handleApplyToReturn()}
+                  disabled={applying || data.length === 0}
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-black text-primary-foreground hover:bg-primary/90 disabled:opacity-50 shadow-xs transition-all"
+                >
+                  {applying ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : applied ? (
+                    <CheckCircle2 size={14} />
+                  ) : (
+                    <Sparkles size={14} />
+                  )}
+                  <span>{applied ? "Applied to Return!" : "Apply Gains to Return"}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setData([]);
+                    window.localStorage.removeItem(PORTFOLIO_ANALYSIS_STORAGE_KEY);
+                    window.dispatchEvent(new Event("itrhub:portfolio-analysis-updated"));
+                  }}
+                  className="text-xs font-bold text-gray-500 hover:text-black dark:hover:text-white flex items-center gap-1.5 px-3 py-2 rounded-full border border-border bg-muted/30"
+                >
+                  <FileSpreadsheet size={14} /> New Upload
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Metrics Bar */}
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="p-3 rounded-2xl bg-muted/40 border border-border/40">
+                <span className="text-[10px] font-black uppercase text-muted-foreground">STCG (Sec 111A 20%)</span>
+                <p className="text-sm font-black text-foreground mt-0.5">₹{stcgGains.toLocaleString("en-IN")}</p>
+              </div>
+              <div className="p-3 rounded-2xl bg-muted/40 border border-border/40">
+                <span className="text-[10px] font-black uppercase text-muted-foreground">LTCG (Sec 112A 12.5%)</span>
+                <p className="text-sm font-black text-foreground mt-0.5">₹{ltcgGains.toLocaleString("en-IN")}</p>
+              </div>
+              <div className="p-3 rounded-2xl bg-muted/40 border border-border/40">
+                <span className="text-[10px] font-black uppercase text-muted-foreground">Total Portfolio Tax</span>
+                <p className="text-sm font-black text-red-500 mt-0.5">₹{totalTaxComputed.toLocaleString("en-IN")}</p>
+              </div>
             </div>
 
             {notice && (
-              <div className={`mb-6 rounded-2xl border p-4 text-sm font-semibold ${notice.type === "error" ? "border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-300" : "border-blue-500/20 bg-blue-500/10 text-blue-700 dark:text-blue-300"}`}>
+              <div className={`mb-6 rounded-2xl border p-4 text-sm font-semibold ${notice.type === "error" ? "border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-300" : "border-green-600/20 bg-green-600/10 text-green-700 dark:text-green-400"}`}>
                 {notice.message}
               </div>
             )}
-            
+
             <div className="h-[500px] w-full min-h-[500px] pt-8 focus:outline-none" style={{ outline: 'none' }}>
               <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1} style={{ outline: 'none' }}>
                 <ScatterChart margin={{ top: 30, right: 30, bottom: 20, left: 30 }} style={{ outline: 'none' }}>
