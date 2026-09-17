@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, ChevronRight, FileSpreadsheet, Hexagon, Shield, Sparkles } from "lucide-react";
+import { ArrowLeft, ChevronRight, FileSpreadsheet, Hexagon, Sparkles } from "lucide-react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/components/AuthProvider";
@@ -82,11 +82,6 @@ export function AppNavbar({ links }: AppNavbarProps) {
 
         {/* Auth & Actions */}
         <div className="flex shrink-0 items-center gap-2.5 sm:gap-3.5">
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border/60 bg-muted/30 text-[11px] font-bold text-muted-foreground">
-            <Shield size={12} className="text-green-600 dark:text-green-400" />
-            <span>256-bit Encrypted</span>
-          </div>
-
           <ThemeToggle />
 
           {!loading && user ? (
