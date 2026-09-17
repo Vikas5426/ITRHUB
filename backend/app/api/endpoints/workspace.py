@@ -179,11 +179,29 @@ async def update_workspace(
 	db: AsyncSession = Depends(get_db),
 ):
 	workspace = await owned_workspace(db, workspace_id, current_user.id)
-	for field, value in payload.model_dump(exclude_unset=True).items():
+	data = payload.model_dump(exclude_unset=True)
+	if "progress_data" in data and data["progress_data"] is not None:
+		workspace.progress_data = {
+			**(workspace.progress_data or {}),
+			**data["progress_data"],
+		}
+		data.pop("progress_data")
+	for field, value in data.items():
 		setattr(workspace, field, value)
 	await db.commit()
 	await db.refresh(workspace)
 	return workspace
+
+
+@router.delete("/filings/{workspace_id}", status_code=204)
+async def delete_workspace(
+	workspace_id: int,
+	current_user: User = Depends(get_current_user),
+	db: AsyncSession = Depends(get_db),
+):
+	workspace = await owned_workspace(db, workspace_id, current_user.id)
+	await db.delete(workspace)
+	await db.commit()
 
 
 @router.put("/filings/{workspace_id}/progress", response_model=WorkspaceResponse)

@@ -292,7 +292,7 @@ function IncomeSourceWizardInner() {
                     >
                       <p className="font-black">{ayLabel(filing.assessment_year_start)}</p>
                       <p className={`mt-1 text-xs ${activeFiling?.id === filing.id ? "opacity-70" : "text-muted-foreground"}`}>
-                        {profile?.display_name ?? "Taxpayer"} - {filing.itr_form ?? "Form pending"}
+                        {(filing.progress_data?.return_name || profile?.display_name) ?? "Taxpayer"} - {filing.itr_form ?? "Form pending"}
                       </p>
                     </button>
                   );
@@ -322,7 +322,9 @@ function IncomeSourceWizardInner() {
               <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Selected return</p>
-                  <h2 className="mt-1 text-2xl font-black">{activeProfile?.display_name} - {activeFiling ? ayLabel(activeFiling.assessment_year_start) : ""}</h2>
+                  <h2 className="mt-1 text-2xl font-black">
+                    {(activeFiling?.progress_data?.return_name || activeProfile?.display_name) ?? "Taxpayer"} - {activeFiling ? ayLabel(activeFiling.assessment_year_start) : ""}
+                  </h2>
                 </div>
                 <button
                   onClick={() => void saveIncome()}

@@ -62,6 +62,7 @@ class WorkspaceUpdate(BaseModel):
 	status: Literal[
 		"not_started", "in_progress", "ready_for_review", "filed"
 	] | None = None
+	progress_data: dict[str, Any] | None = None
 
 
 class ProgressUpdate(BaseModel):

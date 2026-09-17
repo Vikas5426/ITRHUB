@@ -152,9 +152,17 @@ interface TaxWorkspaceContextType {
   loading: boolean;
   error: string;
   selectProfile: (profileId: number) => Promise<void>;
-  selectFiling: (filingId: number) => Promise<void>;
+  selectFiling: (filingId: number | null) => Promise<void>;
   createProfile: (data: Partial<TaxpayerProfile>) => Promise<TaxpayerProfile>;
-  createFiling: (profileId: number, ayStart: number) => Promise<FilingWorkspace>;
+  createFiling: (profileId: number, ayStart: number, itrForm?: string) => Promise<FilingWorkspace>;
+  addReturn: (params: {
+    returnName: string;
+    assessmentYearStart: number;
+    itrForm: string;
+    profileId?: number;
+  }) => Promise<FilingWorkspace>;
+  updateReturnName: (filingId: number, name: string) => Promise<void>;
+  deleteFiling: (filingId: number) => Promise<void>;
   saveIncomeSources: (payload: IncomeSourcesPayload) => Promise<void>;
   saveDeductions: (payload: DeductionsPayload) => Promise<void>;
   uploadDocument: (formData: FormData) => Promise<TaxDocument>;
@@ -265,7 +273,11 @@ export function TaxWorkspaceProvider({ children }: { children: React.ReactNode }
     }
   };
 
-  const selectFiling = async (filingId: number) => {
+  const selectFiling = async (filingId: number | null) => {
+    if (filingId === null) {
+      setActiveFiling(null);
+      return;
+    }
     const f = filings.find((item) => item.id === filingId) || null;
     setActiveFiling(f);
     if (f) {
@@ -285,15 +297,174 @@ export function TaxWorkspaceProvider({ children }: { children: React.ReactNode }
     return newProfile;
   };
 
-  const createFiling = async (profileId: number, ayStart: number) => {
+  const createFiling = async (profileId: number, ayStart: number, itrForm?: string) => {
     const newFiling = await apiRequest<FilingWorkspace>("/api/workspace/filings", {
       method: "POST",
-      body: JSON.stringify({ profile_id: profileId, assessment_year_start: ayStart }),
+      body: JSON.stringify({
+        profile_id: profileId,
+        assessment_year_start: ayStart,
+        itr_form: itrForm || "ITR-1",
+      }),
     });
     setFilings((prev) => [newFiling, ...prev]);
     setActiveFiling(newFiling);
     await loadFilingDetails(newFiling.id);
     return newFiling;
+  };
+
+  const addReturn = async ({
+    returnName,
+    assessmentYearStart,
+    itrForm,
+    profileId,
+  }: {
+    returnName: string;
+    assessmentYearStart: number;
+    itrForm: string;
+    profileId?: number;
+  }) => {
+    let targetProfileId = profileId;
+
+    if (targetProfileId) {
+      const alreadyHasYear = filings.some(
+        (f) => f.profile_id === targetProfileId && f.assessment_year_start === assessmentYearStart
+      );
+      if (alreadyHasYear) {
+        const newProf = await apiRequest<TaxpayerProfile>("/api/workspace/profiles", {
+          method: "POST",
+          body: JSON.stringify({
+            display_name: returnName.trim() || `Tax Return ${assessmentYearStart}`,
+            entity_type: "individual",
+            relationship: "self",
+          }),
+        });
+        setProfiles((prev) => [...prev, newProf]);
+        targetProfileId = newProf.id;
+      }
+    } else {
+      const trimmedName = returnName.trim();
+      const reusable = profiles.find(
+        (p) =>
+          p.display_name.toLowerCase() === trimmedName.toLowerCase() &&
+          !filings.some((f) => f.profile_id === p.id && f.assessment_year_start === assessmentYearStart)
+      );
+      if (reusable) {
+        targetProfileId = reusable.id;
+      } else {
+        const newProf = await apiRequest<TaxpayerProfile>("/api/workspace/profiles", {
+          method: "POST",
+          body: JSON.stringify({
+            display_name: trimmedName || `Return AY ${assessmentYearStart}`,
+            entity_type: "individual",
+            relationship: "self",
+          }),
+        });
+        setProfiles((prev) => [...prev, newProf]);
+        targetProfileId = newProf.id;
+      }
+    }
+
+    const newFiling = await apiRequest<FilingWorkspace>("/api/workspace/filings", {
+      method: "POST",
+      body: JSON.stringify({
+        profile_id: targetProfileId,
+        assessment_year_start: assessmentYearStart,
+        itr_form: itrForm || "ITR-1",
+      }),
+    });
+
+    let finalFiling = newFiling;
+    if (returnName.trim()) {
+      try {
+        const updated = await apiRequest<FilingWorkspace>(`/api/workspace/filings/${newFiling.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            progress_data: { return_name: returnName.trim() },
+          }),
+        });
+        finalFiling = updated;
+      } catch {
+        // Fallback to newFiling if patch fails
+      }
+    }
+
+    setFilings((prev) => [finalFiling, ...prev]);
+    const prof = profiles.find((p) => p.id === targetProfileId) || null;
+    setActiveProfile(prof);
+    setActiveFiling(finalFiling);
+    await loadFilingDetails(finalFiling.id);
+    return finalFiling;
+  };
+
+  const updateReturnName = async (filingId: number, name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+
+    try {
+      await apiRequest<FilingWorkspace>(`/api/workspace/filings/${filingId}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          progress_data: { return_name: trimmed },
+        }),
+      });
+    } catch (e) {
+      console.warn("Failed to patch filing return_name:", e);
+    }
+
+    setFilings((prev) =>
+      prev.map((f) =>
+        f.id === filingId ? { ...f, progress_data: { ...(f.progress_data || {}), return_name: trimmed } } : f
+      )
+    );
+    if (activeFiling?.id === filingId) {
+      setActiveFiling((prev) =>
+        prev ? { ...prev, progress_data: { ...(prev.progress_data || {}), return_name: trimmed } } : prev
+      );
+    }
+
+    const targetFiling = filings.find((f) => f.id === filingId);
+    if (targetFiling?.profile_id) {
+      try {
+        const updatedProfile = await apiRequest<TaxpayerProfile>(
+          `/api/workspace/profiles/${targetFiling.profile_id}`,
+          {
+            method: "PATCH",
+            body: JSON.stringify({ display_name: trimmed }),
+          }
+        );
+        setProfiles((prev) => prev.map((p) => (p.id === targetFiling.profile_id ? updatedProfile : p)));
+        if (activeProfile?.id === targetFiling.profile_id) {
+          setActiveProfile(updatedProfile);
+        }
+      } catch (e) {
+        console.warn("Failed to patch profile display_name:", e);
+      }
+    }
+  };
+
+  const deleteFiling = async (filingId: number) => {
+    await apiRequest(`/api/workspace/filings/${filingId}`, {
+      method: "DELETE",
+    });
+
+    setFilings((prev) => {
+      const remaining = prev.filter((f) => f.id !== filingId);
+      if (activeFiling?.id === filingId) {
+        const nextActive = remaining[0] || null;
+        setActiveFiling(nextActive);
+        if (nextActive) {
+          const nextProf = profiles.find((p) => p.id === nextActive.profile_id) || null;
+          setActiveProfile(nextProf);
+          void loadFilingDetails(nextActive.id);
+        } else {
+          setIncomeSources(null);
+          setDeductions(defaultDeductions);
+          setDocuments([]);
+          setTaxAnalysis(null);
+        }
+      }
+      return remaining;
+    });
   };
 
   const saveIncomeSources = async (payload: IncomeSourcesPayload) => {
@@ -381,6 +552,9 @@ export function TaxWorkspaceProvider({ children }: { children: React.ReactNode }
         selectFiling,
         createProfile,
         createFiling,
+        addReturn,
+        updateReturnName,
+        deleteFiling,
         saveIncomeSources,
         saveDeductions,
         uploadDocument,

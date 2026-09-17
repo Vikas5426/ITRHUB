@@ -109,7 +109,7 @@ function stepUrl(id: IntakeStepId) {
 export function IntakeCommandCenter() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { applyCapitalGains, documents, incomeSources, deductions, taxAnalysis } = useTaxWorkspace();
+  const { activeFiling, applyCapitalGains, documents, incomeSources, deductions, taxAnalysis } = useTaxWorkspace();
   const [selectedStepId, setSelectedStepId] = useState<IntakeStepId>("setup");
   const [brokerFileName, setBrokerFileName] = useState("");
   const [tradeCount, setTradeCount] = useState<number | null>(null);
@@ -192,14 +192,19 @@ export function IntakeCommandCenter() {
             const Icon = step.icon;
             const isActive = step.id === activeStep.id;
             const isComplete = index < activeIndex;
+            const isStepDisabled = !activeFiling && step.id !== "setup";
 
             return (
               <button
                 key={step.id}
-                onClick={() => selectStep(step.id)}
+                onClick={() => !isStepDisabled && selectStep(step.id)}
+                disabled={isStepDisabled}
+                title={isStepDisabled ? "Select a return in Return Setup first" : undefined}
                 className={`flex w-full items-center gap-3 rounded-2xl p-3 text-left transition-all ${
                   isActive
                     ? "bg-primary text-primary-foreground font-black shadow-xs"
+                    : isStepDisabled
+                    ? "opacity-40 cursor-not-allowed text-muted-foreground"
                     : "hover:bg-muted text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -208,7 +213,7 @@ export function IntakeCommandCenter() {
                     isActive
                       ? "bg-primary-foreground/20 text-primary-foreground"
                       : isComplete
-                      ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                      ? "bg-primary/10 text-primary"
                       : "bg-muted text-muted-foreground"
                   }`}
                 >
@@ -230,13 +235,19 @@ export function IntakeCommandCenter() {
             <span>Next Handoff</span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-            {nextStep ? nextStep.title : "Ready for Analysis"}
+            {activeStep.id === "setup" && !activeFiling
+              ? "Select a return below to unlock income & documents"
+              : nextStep
+              ? nextStep.title
+              : "Ready for Analysis"}
           </p>
 
           {nextStep ? (
             <button
               onClick={() => selectStep(nextStep.id)}
-              className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-full bg-primary py-2 text-xs font-black text-primary-foreground hover:bg-primary/90 transition-all shadow-xs"
+              disabled={activeStep.id === "setup" && !activeFiling}
+              title={activeStep.id === "setup" && !activeFiling ? "Please select a return to proceed" : undefined}
+              className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-full bg-primary py-2 text-xs font-black text-primary-foreground hover:bg-primary/90 transition-all shadow-xs disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <span>Continue to {nextStep.label}</span>
               <ArrowRight size={13} />
@@ -282,7 +293,9 @@ export function IntakeCommandCenter() {
             {nextStep ? (
               <button
                 onClick={() => selectStep(nextStep.id)}
-                className="flex items-center gap-1.5 rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-all shadow-xs"
+                disabled={activeStep.id === "setup" && !activeFiling}
+                title={activeStep.id === "setup" && !activeFiling ? "Please select a return to proceed" : undefined}
+                className="flex items-center gap-1.5 rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-all shadow-xs disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <span>Next</span>
                 <ChevronRight size={14} />
