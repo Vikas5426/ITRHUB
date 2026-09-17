@@ -5,23 +5,17 @@ import Link from "next/link";
 import {
   AlertTriangle,
   ArrowRight,
-  BellRing,
   Calendar,
-  CalendarClock,
   CheckCircle,
   CheckCircle2,
-  Clock,
-  Clock3,
   CreditCard,
   Download,
-  FileSpreadsheet,
   FileWarning,
-  RefreshCw,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
 
-import { DEADLINES_DATA, computeStatus, Deadline } from "./data";
+import { DEADLINES_DATA, computeStatus } from "./data";
 import { PenaltyCalculator } from "./PenaltyCalculator";
 
 export function TrackCommandCenter() {

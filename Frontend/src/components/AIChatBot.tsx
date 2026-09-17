@@ -251,7 +251,7 @@ export function AIChatBot() {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let accumulatedText = "";
-      let activeSources: string[] = [];
+      const activeSources: string[] = [];
 
       while (true) {
         const { value, done } = await reader.read();

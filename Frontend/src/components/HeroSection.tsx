@@ -9,13 +9,7 @@ import {
   CalendarCheck,
   CheckCircle2,
   Clock,
-  FileCheck2,
   FolderOpen,
-  PieChart,
-  ShieldCheck,
-  Sparkles,
-  TrendingUp,
-  Zap,
 } from "lucide-react";
 
 export function HeroSection() {

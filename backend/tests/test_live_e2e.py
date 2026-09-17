@@ -6,6 +6,15 @@ BASE_FRONTEND = "http://127.0.0.1:3000"
 
 
 def test_live_full_flow():
+    # Check if live server is reachable before executing E2E tests
+    try:
+        with httpx.Client(base_url=BASE_BACKEND, timeout=1.0) as check_client:
+            res = check_client.get("/")
+            if res.status_code != 200:
+                pytest.skip("Live backend server not healthy")
+    except Exception:
+        pytest.skip(f"Live backend server is not running at {BASE_BACKEND}")
+
     client = httpx.Client(base_url=BASE_BACKEND, timeout=10.0)
 
     # 1. Register new user

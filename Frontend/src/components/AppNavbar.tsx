@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, ChevronRight, FileSpreadsheet, Hexagon, Sparkles } from "lucide-react";
+import { ArrowLeft, ChevronRight, Hexagon, Sparkles } from "lucide-react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/components/AuthProvider";
@@ -20,8 +20,6 @@ export function AppNavbar({ links }: AppNavbarProps) {
   const pathname = usePathname();
   const showBackButton = pathname !== "/";
   const { user, loading, logout } = useAuth();
-
-  const isWorkflowRoute = ["/intake", "/analysis", "/track"].includes(pathname);
 
   return (
     <nav className="fixed left-0 right-0 top-0 z-50 border-b border-border/80 bg-background/85 px-4 py-3 backdrop-blur-xl sm:px-6 shadow-xs">
