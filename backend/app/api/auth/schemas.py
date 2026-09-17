@@ -8,6 +8,14 @@ class RegisterRequest(BaseModel):
 	full_name: str = Field(min_length=2, max_length=120)
 	email: EmailStr
 	password: str = Field(min_length=10, max_length=128)
+	phone_number: str = Field(min_length=10, max_length=20)
+	occupation: str = Field(min_length=2, max_length=100)
+	address_line: str = Field(min_length=3, max_length=255)
+	city: str = Field(min_length=2, max_length=100)
+	state: str = Field(min_length=2, max_length=100)
+	pincode: str = Field(min_length=6, max_length=10)
+	gender: str = Field(min_length=1, max_length=20)
+	date_of_birth: date
 
 	@field_validator("password")
 	@classmethod
@@ -17,6 +25,30 @@ class RegisterRequest(BaseModel):
 		if not any(char.isdigit() for char in value):
 			raise ValueError("Password must contain a number")
 		return value
+
+	@field_validator("phone_number")
+	@classmethod
+	def validate_phone(cls, value: str) -> str:
+		clean = re.sub(r"[\s\-\+]", "", value)
+		if len(clean) < 10 or not clean.isdigit():
+			raise ValueError("Phone number must contain at least 10 digits")
+		return value.strip()
+
+	@field_validator("pincode")
+	@classmethod
+	def validate_pincode(cls, value: str) -> str:
+		clean = value.strip()
+		if len(clean) != 6 or not clean.isdigit():
+			raise ValueError("PIN code must be exactly 6 digits")
+		return clean
+
+	@field_validator("date_of_birth")
+	@classmethod
+	def validate_dob(cls, value: date) -> date:
+		if value >= date.today():
+			raise ValueError("Date of birth must be in the past")
+		return value
+
 
 
 class LoginRequest(BaseModel):

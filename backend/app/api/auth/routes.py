@@ -95,6 +95,14 @@ async def register(
 		email=email,
 		full_name=payload.full_name.strip(),
 		password_hash=hash_password(payload.password),
+		phone_number=payload.phone_number.strip(),
+		occupation=payload.occupation.strip(),
+		address_line=payload.address_line.strip(),
+		city=payload.city.strip(),
+		state=payload.state.strip(),
+		pincode=payload.pincode.strip(),
+		gender=payload.gender.strip(),
+		date_of_birth=payload.date_of_birth,
 	)
 	db.add(user)
 	await db.flush()
@@ -104,6 +112,7 @@ async def register(
 			display_name=user.full_name,
 			entity_type="individual",
 			relationship="self",
+			date_of_birth=user.date_of_birth,
 			is_primary=True,
 		)
 	)
