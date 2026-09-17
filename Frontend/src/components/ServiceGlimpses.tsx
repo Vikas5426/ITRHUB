@@ -17,7 +17,11 @@ import {
   Zap,
 } from "lucide-react";
 
+import { useAuth } from "@/components/AuthProvider";
+
 export function ServiceGlimpses() {
+  const { user } = useAuth();
+
   return (
     <section className="relative py-20 px-5 sm:px-8 lg:px-12 z-10 overflow-hidden bg-background">
       {/* Background Ambience */}
@@ -54,10 +58,12 @@ export function ServiceGlimpses() {
                   <Radio size={12} className="animate-pulse text-blue-500" />
                   <span>Compliance Radar</span>
                 </div>
-                <div className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground/80">
-                  <Lock size={12} />
-                  <span>Sign In</span>
-                </div>
+                {!user && (
+                  <div className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground/80">
+                    <Lock size={12} />
+                    <span>Sign In</span>
+                  </div>
+                )}
               </div>
 
               <h3 className="text-2xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors">
@@ -113,10 +119,12 @@ export function ServiceGlimpses() {
                   <PieChart size={12} className="text-emerald-500" />
                   <span>Capital Gains</span>
                 </div>
-                <div className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground/80">
-                  <Lock size={12} />
-                  <span>Sign In</span>
-                </div>
+                {!user && (
+                  <div className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground/80">
+                    <Lock size={12} />
+                    <span>Sign In</span>
+                  </div>
+                )}
               </div>
 
               <h3 className="text-2xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors">
@@ -177,10 +185,12 @@ export function ServiceGlimpses() {
                   <Zap size={12} className="text-purple-500" />
                   <span>Decision Engine</span>
                 </div>
-                <div className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground/80">
-                  <Lock size={12} />
-                  <span>Sign In</span>
-                </div>
+                {!user && (
+                  <div className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground/80">
+                    <Lock size={12} />
+                    <span>Sign In</span>
+                  </div>
+                )}
               </div>
 
               <h3 className="text-2xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors">
@@ -225,7 +235,7 @@ export function ServiceGlimpses() {
           </motion.div>
         </div>
 
-        {/* Bottom Banner linking directly to Register/Login */}
+        {/* Bottom Banner linking directly to Register/Login or Calculate */}
         <div className="rounded-3xl border border-border bg-gradient-to-r from-primary/5 via-card to-primary/5 p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xs">
           <div>
             <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-primary mb-2">
@@ -236,23 +246,37 @@ export function ServiceGlimpses() {
               Ready to calculate your exact AY 2026-27 tax liability?
             </h3>
             <p className="text-xs sm:text-sm text-muted-foreground font-medium mt-1">
-              Sign in or create an account in 30 seconds to run simulations, upload documents, and file.
+              {user
+                ? "Run interactive simulations with your return context, compare regimes, and optimize deductions."
+                : "Sign in or create an account in 30 seconds to run simulations, upload documents, and file."}
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
-            <Link
-              href="/auth?mode=signup"
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-xs sm:text-sm font-black text-primary-foreground hover:bg-primary/90 transition-all shadow-sm"
-            >
-              <span>Get Started Free</span>
-              <ArrowRight size={14} />
-            </Link>
-            <Link
-              href="/auth?mode=login"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-card hover:bg-muted px-6 py-3 text-xs sm:text-sm font-bold text-foreground transition-all shadow-xs"
-            >
-              <span>Sign In</span>
-            </Link>
+            {user ? (
+              <Link
+                href="/simulator"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3.5 text-xs sm:text-sm font-black text-primary-foreground hover:bg-primary/90 transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <span>Calculate</span>
+                <ArrowRight size={15} />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/auth?mode=signup"
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-xs sm:text-sm font-black text-primary-foreground hover:bg-primary/90 transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <span>Get Started Free</span>
+                  <ArrowRight size={14} />
+                </Link>
+                <Link
+                  href="/auth?mode=login"
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-card hover:bg-muted px-6 py-3 text-xs sm:text-sm font-bold text-foreground transition-all shadow-xs hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <span>Sign In</span>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
