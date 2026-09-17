@@ -38,6 +38,14 @@ def register(client: TestClient, email: str = "vikas@example.com") -> dict:
 			"full_name": "Vikas Sharma",
 			"email": email,
 			"password": "StrongPass123",
+			"phone_number": "9876543210",
+			"occupation": "Software Engineer",
+			"address_line": "123 Tech Park Road",
+			"city": "Bengaluru",
+			"state": "Karnataka",
+			"pincode": "560001",
+			"gender": "male",
+			"date_of_birth": "1990-05-15",
 		},
 	)
 	assert response.status_code == 201
@@ -47,16 +55,21 @@ def register(client: TestClient, email: str = "vikas@example.com") -> dict:
 def test_register_creates_primary_profile_and_session(client: TestClient):
 	body = register(client)
 	assert body["user"]["email"] == "vikas@example.com"
+	assert body["user"]["phone_number"] == "9876543210"
+	assert body["user"]["occupation"] == "Software Engineer"
+	assert body["user"]["city"] == "Bengaluru"
 	assert "itrhub_session" in client.cookies
 
 	me = client.get("/api/auth/me")
 	assert me.status_code == 200
 	assert me.json()["full_name"] == "Vikas Sharma"
+	assert me.json()["phone_number"] == "9876543210"
 
 	profiles = client.get("/api/workspace/profiles")
 	assert profiles.status_code == 200
 	assert profiles.json()[0]["is_primary"] is True
 	assert profiles.json()[0]["relationship"] == "self"
+
 
 
 def test_login_rejects_bad_password_and_logout_clears_session(client: TestClient):

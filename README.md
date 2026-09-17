@@ -253,10 +253,10 @@ Make sure you have the following installed on your machine:
 - **Git**: [Download Git](https://git-scm.com/)
 - **Python 3.10 to 3.14**: [Download Python](https://www.python.org/downloads/) *(ensure "Add Python to PATH" is checked during Windows installation)*
 - **Node.js 18.18+ or 20+ (LTS recommended)**: [Download Node.js](https://nodejs.org/)
-- **Optional**: [PostgreSQL 14+](https://www.postgresql.org/) (only if you want PostgreSQL instead of SQLite)
-- **Optional**: [Redis](https://redis.io/) (for caching/rate limiting)
+- **Optional**: [PostgreSQL 14+](https://www.postgresql.org/) / [Supabase](https://supabase.com/) (recommended for production database)
 
 ---
+
 
 ### Step 1: Clone the Repository
 ```bash
@@ -405,7 +405,6 @@ All backend settings are loaded via `pydantic-settings` from `backend/.env`.
 | `AI_TEMPERATURE` | float | Optional | `0.2` | Temperature for AI responses (low values ensure deterministic tax adherence). |
 | `AI_MAX_TOKENS` | integer | Optional | `2048` | Maximum completion token budget for AI Copilot answers. |
 | `AI_REASONING_EFFORT` | string | Optional | `medium` | Reasoning depth effort (`low`, `medium`, `high`). |
-| `REDIS_URL` | string | Optional | `redis://localhost:6379/0` | Optional Redis instance URL for response caching. |
 
 > [!WARNING]
 > In production environments, never use the default `SECRET_KEY` or `DOCUMENT_ENCRYPTION_KEY`. Changing `DOCUMENT_ENCRYPTION_KEY` after uploading documents will make previously stored files unreadable without a re-encryption migration.

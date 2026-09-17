@@ -37,10 +37,19 @@ def do_run_migrations(connection) -> None:
 
 
 async def run_async_migrations() -> None:
+	url = get_settings().database_url
+	connect_args = {}
+	if "pooler.supabase.com" in url or ":6543" in url:
+		connect_args["statement_cache_size"] = 0
+	if "supabase.co" in url or "pooler.supabase.com" in url:
+		if "ssl=" not in url:
+			connect_args["ssl"] = "require"
+
 	connectable = async_engine_from_config(
 		config.get_section(config.config_ini_section, {}),
 		prefix="sqlalchemy.",
 		poolclass=pool.NullPool,
+		connect_args=connect_args,
 	)
 	async with connectable.connect() as connection:
 		await connection.run_sync(do_run_migrations)

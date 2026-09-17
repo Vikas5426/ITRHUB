@@ -9,13 +9,23 @@ from app.core.database import Base, get_engine
 import app.models  # noqa: F401
 
 
+import logging
+
+logger = logging.getLogger("uvicorn.error")
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
 	settings = get_settings()
 	if settings.auto_create_tables:
-		async with get_engine().begin() as connection:
-			await connection.run_sync(Base.metadata.create_all)
+		try:
+			async with get_engine().begin() as connection:
+				await connection.run_sync(Base.metadata.create_all)
+			logger.info("Database tables initialized successfully.")
+		except Exception as e:
+			logger.error(f"Database initialization error: {e}")
 	yield
+
 
 
 settings = get_settings()

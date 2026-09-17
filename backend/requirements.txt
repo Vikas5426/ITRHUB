@@ -10,6 +10,8 @@ sqlalchemy
 asyncpg
 aiosqlite
 alembic
+psycopg2-binary
+supabase
 
 # Auth and security
 python-jose[cryptography]
@@ -19,10 +21,8 @@ fastapi-users[sqlalchemy]
 email-validator
 cryptography
 
-# Cache
-redis
-
 # Tax/data and reporting
+
 numpy
 python-dateutil
 jinja2

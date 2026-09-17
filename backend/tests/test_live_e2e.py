@@ -15,8 +15,17 @@ def test_live_full_flow():
             "full_name": "Vikas Sharma",
             "email": "e2e_vikas@example.com",
             "password": "StrongPass123",
+            "phone_number": "9876543210",
+            "occupation": "Software Engineer",
+            "address_line": "123 Tech Park Road",
+            "city": "Bengaluru",
+            "state": "Karnataka",
+            "pincode": "560001",
+            "gender": "male",
+            "date_of_birth": "1990-05-15",
         },
     )
+
     if reg_res.status_code == 409:
         # Already registered, log in
         login_res = client.post(
