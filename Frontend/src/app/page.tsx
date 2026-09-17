@@ -1,8 +1,6 @@
 import { HeroSection } from "@/components/HeroSection";
-import { SmartTaxTools } from "@/components/SmartTaxTools";
-import { PortfolioPreview } from "@/components/PortfolioPreview";
+import { ServiceGlimpses } from "@/components/ServiceGlimpses";
 import { DeductionFinder } from "@/components/DeductionFinder";
-import { TaxPulse } from "@/components/TaxPulse";
 import { AppNavbar } from "@/components/AppNavbar";
 import { DocumentImportPreview } from "@/components/DocumentImportPreview";
 import { IncomeWizardPreview } from "@/components/IncomeWizardPreview";
@@ -16,12 +14,10 @@ export default function Home() {
       {/* Main Content */}
       <main className="relative pt-16">
         <HeroSection />
-        <TaxPulse />
-        <PortfolioPreview />
-        <SmartTaxTools />
+        <ServiceGlimpses />
+        <DeductionFinder />
         <IncomeWizardPreview />
         <DocumentImportPreview />
-        <DeductionFinder />
       </main>
     </div>
   );
